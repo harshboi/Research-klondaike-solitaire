@@ -23,7 +23,7 @@ class game:
     n[14] = [[1,'C','B'],[1,'S','B'],[1,'D','R'],[1,'H','R']]     
     for i in range(1,26):
       assign(i)
-      
+
     #insert code
   
   def assign(self,i):
@@ -32,7 +32,6 @@ class game:
       random.randint(2,14)
       n[i] = self.tableau()
     #insert code
-
 
 
   #def display_talon(self):
