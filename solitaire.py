@@ -9,29 +9,56 @@ class game:
     self.turnstock = {}
     self.foundation = {}
     self.talon = {}
-    self.tableau = []
+    self.tableau = [[],[],[],[],[],[],[]]
   
   def shuffle(self):
     #11 = K, 12 = Q, 13 = J, 14 = A
     n[0] = n[1] = []    
     for i in range(2,10):
-      n[i] = [[1,'C','B'],[1,'D','R'],[1,'H','R'],[1,'S','B']]
+      n[i] = [[1,'C','B',i],[1,'D','R',i],[1,'H','R',i],[1,'S','B',i]]
     #n2 = n3 = n4 = n5 = n6 = n7 = n8 = n9 = n10 = [[1,'C','B'],[1,'D','R'],[1,'H','R'],[1,'S','B']]    #[[1,'c',b']] where 1 = no. of cards in the deck, c = club, b = black
-    n[11] = [[1,'C','B'],[1,'S','B'],[1,'D','R'],[1,'H','R']]
-    n[12] = [[1,'C','B'],[1,'S','B'],[1,'D','R'],[1,'H','R']]
-    n[13] = [[1,'C','B'],[1,'S','B'],[1,'D','R'],[1,'H','R']]
-    n[14] = [[1,'C','B'],[1,'S','B'],[1,'D','R'],[1,'H','R']]     
+    n[11] = [[1,'C','B',"K"],[1,'S','B',"K"],[1,'D','R',"K"],[1,'H','R',"K"]]
+    n[12] = [[1,'C','B',"Q"],[1,'S','B',"Q"],[1,'D','R',"Q"],[1,'H','R',"Q"]]
+    n[13] = [[1,'C','B',"J"],[1,'S','B',"J"],[1,'D','R',"J"],[1,'H','R',"J"]]
+    n[14] = [[1,'C','B',"A"],[1,'S','B',"A"],[1,'D','R',"A"],[1,'H','R',"A"]]
     for i in range(1,26):
-      assign(i)
+      assign(n)
 
     #insert code
   
   def assign(self,i):
     counter = 0
-    while counter != 1:
-      random.randint(2,14)
-      n[i] = self.tableau()
+    
+    for i in range(0,7)counter != 1:
+      x = random.randint(2,14)
+      counter = 0;            # Used to check if all the elements in n[i] have been occupied, iterates i to 4
+      
+      while(counter != 0):{
+        if n[x][0] == 0:
+          x = random.randint(2,14)
+        
+        else:
+          append_tableau(x) 
+            
+      self.tableau[i][j] = 
     #insert code
+
+# Used to add a card to the tabeau's seven card layer
+# Checks whether each stack has the correct number of cards and then adds to the tableau
+#
+  def append_tableau(value):
+    
+    for i in range(0,7):
+      x = len(self.tableau[i])
+    
+      if x <= (i+1):
+        self.tabeau[i][x].append(value)
+    
+      else:
+        
+
+  #def error_handling(self,n):
+    
 
 
   #def display_talon(self):
