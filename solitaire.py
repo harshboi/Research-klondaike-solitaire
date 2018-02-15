@@ -95,7 +95,13 @@ class game:
       self.tableau[slot_num].append(card)
       self.talon.pop(index)
 
-  #def flip_stock(self):
+#########################################################################################################  
+#Parameters: num: Takes in the number of cards flipped in the turnstock process
+#########################################################################################################  
+
+  def flip_stock(self,num):
+    if(len(self.tableau))>3):
+      
     
     
 def main():
