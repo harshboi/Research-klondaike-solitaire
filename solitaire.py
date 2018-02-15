@@ -7,8 +7,8 @@ class game:
     #self.cards = {'K':[['B','S'],['B','C'],['R','D'],['R','D']],"Q":[['B','S'],['B','C'],['R','D'],['R','D']],"J":[['B','S'],['B','C'],['R','D'],['R','D']],"A":[['B','S'],['B','C'],['R','D'],['R','D']],"2":[['B','S'],['B','C'],['R','D'],['R','D']],"3":[['B','S'],['B','C'],['R','D'],['R','D']]}
     #self.cards.update({"4":[['B','S'],['B','C'],['R','D'],['R','D']],"5":[['B','S'],['B','C'],['R','D'],['R','D']],"6":[['B','S'],['B','C'],['R','D'],['R','D']],"7":[['B','S'],['B','C'],['R','D'],['R','D']],"8":[['B','S'],['B','C'],['R','D'],['R','D']],"9":[['B','S'],['B','C'],['R','D'],['R','D']],"10":[['B','S'],['B','C'],['R','D'],['R','D']]})
     #self.cards.update({"A":[['B','S'],['B','C'],['R','D'],['R','D']]})
-    self.cards = []
-    self.tcards = []
+    self.cards = []     # 
+    self.tcards = []    # NOT USED PRESENTLY, JUST HOLDS A COPY OF EVERYTHING
     self.stock = []
     self.foundation = {}
     self.talon = {}
@@ -26,18 +26,16 @@ class game:
     #n2 = n3 = n4 = n5 = n6 = n7 = n8 = n9 = n10 = [[1,'C','B'],[1,'D','R'],[1,'H','R'],[1,'S','B']]    #[[1,'c',b']] where 1 = no. of cards in the deck, c = club, b = black
     face_cards = ["K","Q","K","A"]
     for i in range(10,14):
-      n.append(['C','B',""+face_cards[i-10]])
-      n.append(['S','B',""+face_cards[i-10]])
-      n.append(['D','R',""+face_cards[i-10]])
-      n.append(['H','R',""+face_cards[i-10]])
+      n.append(['C','B',i-10])
+      # n.append(['C','B',""+face_cards[i-10]])
+      n.append(['S','B',i-10])
+      n.append(['D','R',i-10])
+      n.append(['H','R',i-10])
     #for i in range(1,26):
     self.cards = n
     self.tcards = n
     self.assign_tableau(n)
-  #  for i in range(0,7):
-   #   print(self.tableau[i])
-    #  print("\n")
-    #print(self.cards)
+  
     self.create_stock()
 
     #insert code
@@ -49,7 +47,6 @@ class game:
 #########################################################################################################  
   def assign_tableau(self,n):
     tableau_num = 0 
-    
     for i in range(0,28):      # For each tableau
       x = random.randint(0,len(n)-1)   # Contains the card number
       #print("x is " + str(x) + " len of x  is " + str(len(n)) + "\n")
@@ -58,44 +55,49 @@ class game:
         self.tableau[tableau_num].append(card)
         if(len(self.tableau[tableau_num]) == tableau_num+1):
           tableau_num += 1
+      
       n.pop(x)
+
     self.cards = n
 
-    for i in range(0,7):
-      #print(self.tableau[i])
 
-########################################################
+
   def create_stock(self):
-  #  for i in range(len(self.cards)):
-   #   print(self.cards[i]+"\n")
-    #print(len(self.cards))        
     for i in range(0,24):
       #pdb.set_trace()
       x = random.randint(0,len(self.cards)-1)
       self.stock.append(self.cards[x])
       self.cards.pop(x)
 
+  def instructions(self):
+    if(len(self.stock) or (self.talon)>0):
+      print("Flip the stock")  
+    if(len(self.talon)>0):
+      print("Do you want to move a card from the talon")
 
-  #def error_handling(self,n):
-    # Design the error handling function
+  #def play(self):
     
+#########################################################################################################  
+#Parameters: slot_num: Which slot in the tableau should the card be inserted into
+#            card_color: what is the color of the card to check for alternating colors
+#            Card_number: Make sure whether the card to be inserted into the tableau is less than the 
+#                         current card nubmer
+#            Index: Index of the current in the talon. Used for removing from the stock/talon
+#########################################################################################################  
+  def check_tableau_addition(self,card,slot_num,index):
+    len = self.tableau[slot_num]
+    tableau_card = self.tableau[slot_num][len-1]  #Card on the top of the selected tableau
+    if(tableau_card[1] == card[1]):
+      return False
+    elif(tableau_card[2] < card[2]):
+      return False
+    else:
+      self.tableau[slot_num].append(card)
+      self.talon.pop(index)
 
-
-  #def display_talon(self):
-    #
-
-  #def display_foundations(self):
-    #insert code
-  
-  #def display_stock(self):
-    #insert code
-
-  #def display_tableau(self):
-    #insert code
-
-  #def legal_move_turnstock(self):
-    #insert code
-
+  #def flip_stock(self):
+    
+    
 def main():
   a = game()
 
