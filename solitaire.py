@@ -9,10 +9,10 @@ class game:
     #self.cards.update({"A":[['B','S'],['B','C'],['R','D'],['R','D']]})
     self.cards = []     # 
     self.tcards = []    # NOT USED PRESENTLY, JUST HOLDS A COPY OF EVERYTHING
-    self.stock = []
+    self.stock = []                             # Contains the decked to be flipped
     self.foundation = {}
-    self.talon = {}
-    self.tableau = [[],[],[],[],[],[],[]]
+    self.talon = []                            # Contains flipped cards
+    self.tableau = [[],[],[],[],[],[],[]]       # 7 cards laid out aside eachother
     self.shuffle()
   
   def shuffle(self):
@@ -96,17 +96,27 @@ class game:
       self.talon.pop(index)
 
 #########################################################################################################  
-#Parameters: num: Takes in the number of cards flipped in the turnstock process
+#Parameters:-
+# num: Takes in the number of cards flipped in the turnstock process (starts from 0)
 #########################################################################################################  
 
   def flip_stock(self,num):
     num += 1
-    if((len(self.tableau)) >= 3):
-      if(len(self.tableau)>num+1):     #factoring index position 0 for index in cards
-        print(1)
-        return
-      
+
+    if(len(self.stock)>=3):
+      self.talon.append(self.stock.pop())
+      self.talon.append(self.stock.pop())
+      self.talon.append(self.stock.pop())
+
+    elif(len(self.stock)>0 and len(self.stock)<3):
+      for i in range(len(self.stock)):
+        self.talon.append(self.stock.pop())
+        
+    elif(len(self.stock) == 0):
+      for i in range(len(self.talon)):
+        self.stock.append(self.talon.pop())
     
+
 def main():
   a = game()
 
