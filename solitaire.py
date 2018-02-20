@@ -18,19 +18,21 @@ class game:
   def shuffle(self):
 
     n = []    
-    for i in range(0,9):
-      n.append(['D','R',i+2])
-      n.append(['H','R',i+2])
-      n.append(['S','B',i+2])
-      n.append(['C','B',i+2])
+    for i in range(1,11):
+      n.append(['D','R',i])
+      n.append(['H','R',i])
+      n.append(['S','B',i])
+      n.append(['C','B',i])
+
     #n2 = n3 = n4 = n5 = n6 = n7 = n8 = n9 = n10 = [[1,'C','B'],[1,'D','R'],[1,'H','R'],[1,'S','B']]    #[[1,'c',b']] where 1 = no. of cards in the deck, c = club, b = black
     face_cards = ["K","Q","K","A"]
-    for i in range(10,14):
-      n.append(['C','B',i-10])
-      # n.append(['C','B',""+face_cards[i-10]])
-      n.append(['S','B',i-10])
-      n.append(['D','R',i-10])
-      n.append(['H','R',i-10])
+    for i in range(11,14):
+      n.append(['C','B',i])
+      # n.append(['C','B',""+face_cards[i-10]])   1 - A, 11 - J, 12 - Q, 13 - K
+      n.append(['S','B',i])
+      n.append(['D','R',i])
+      n.append(['H','R',i])
+
     #for i in range(1,26):
     self.cards = n
     self.tcards = n
@@ -71,7 +73,8 @@ class game:
 
   def instructions(self):
     if(len(self.stock) or (self.talon)>0):
-      print("Flip the stock")  
+      print("1 to Flip the stock")  
+
     if(len(self.talon)>0):
       print("Do you want to move a card from the talon")
 
@@ -89,8 +92,10 @@ class game:
     tableau_card = self.tableau[slot_num][len-1]  #Card on the top of the selected tableau
     if(tableau_card[1] == card[1]):
       return False
+
     elif(tableau_card[2] < card[2]):
       return False
+
     else:
       self.tableau[slot_num].append(card)
       self.talon.pop(index)
@@ -101,8 +106,6 @@ class game:
 #########################################################################################################  
 
   def flip_stock(self,num):
-    num += 1
-
     if(len(self.stock)>=3):
       self.talon.append(self.stock.pop())
       self.talon.append(self.stock.pop())
@@ -111,7 +114,7 @@ class game:
     elif(len(self.stock)>0 and len(self.stock)<3):
       for i in range(len(self.stock)):
         self.talon.append(self.stock.pop())
-        
+
     elif(len(self.stock) == 0):
       for i in range(len(self.talon)):
         self.stock.append(self.talon.pop())
