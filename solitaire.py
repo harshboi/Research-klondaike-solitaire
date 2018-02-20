@@ -100,9 +100,12 @@ class game:
 #########################################################################################################  
 
   def flip_stock(self,num):
-    if(len(self.tableau))>3):
+    num += 1
+    if((len(self.tableau)) >= 3):
+      if(len(self.tableau)>num+1):     #factoring index position 0 for index in cards
+        print(1)
+        return
       
-    
     
 def main():
   a = game()
