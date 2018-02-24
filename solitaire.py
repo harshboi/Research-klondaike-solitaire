@@ -62,8 +62,6 @@ class game:
 
     self.cards = n
 
-
-
   def create_stock(self):
     for i in range(0,24):
       #pdb.set_trace()
@@ -71,12 +69,24 @@ class game:
       self.stock.append(self.cards[x])
       self.cards.pop(x)
 
+#########################################################################################################
+# Prints the instructions
+#########################################################################################################
+
   def instructions(self):
+    inp = -1
     if(len(self.stock) or (self.talon)>0):
       print("1 to Flip the stock")  
 
     if(len(self.talon)>0):
-      print("Do you want to move a card from the talon")
+      print("2 to move a card from the talon to the foundation or tableau")
+    
+    print("3 to move a card from the foundation to the tableau ")
+
+    inp = input("Choice ")
+    return(inp)
+
+
 
   #def play(self):
     
@@ -106,6 +116,7 @@ class game:
 #########################################################################################################  
 
   def flip_stock(self,num):
+    
     if(len(self.stock)>=3):
       self.talon.append(self.stock.pop())
       self.talon.append(self.stock.pop())
@@ -118,6 +129,35 @@ class game:
     elif(len(self.stock) == 0):
       for i in range(len(self.talon)):
         self.stock.append(self.talon.pop())
+    
+  def print_talon(self):
+    
+    print("|||||")
+    print("|||||")
+    print("|||||")
+    print("|||||")
+    len_talon = len(self.talon)
+    if(len_talon > 0):
+      if(len_talon > 3):
+        print(self.talon[len_talon-3])
+        print(self.talon[len_talon-2])
+        print(self.talon[len_talon-1])
+      else:
+        for i in range(len_talon)
+          print(self.talon[i])
+
+
+  def print_tableua(self):
+    len_tableau = len(self.tableau)
+    for i in range(len_tableau):
+      for j in range(self.tableau[i]):
+        print
+
+  def UI(self):
+        
+    self.print_talon
+    self.instructions()
+    
     
 
 def main():
