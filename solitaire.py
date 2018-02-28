@@ -75,6 +75,7 @@ class game:
 
   def instructions(self):
     inp = -1
+    self.UI()
     if(len(self.stock) or (self.talon)>0):
       print("1 to Flip the stock")  
 
@@ -83,13 +84,20 @@ class game:
     
     print("3 to move a card from the foundation to the tableau ")
 
-    inp = input("Choice ")
-
-    # if tableau
-    # call tableau to talon
-    # pass in index of the card
-
-    return(inp)
+    choice = input("Choice ")
+    choice = int(choice)
+    if(choice == 1):
+      self.flip_stock()
+      #print UI stuff
+    elif(choice == 2):
+      tableau_num = input("Enter the tableau number to move to ")
+      res = self.tableau_addition(tableau_num)
+      if(res == 0):
+        print("Operation not possible")
+      elif(res == 1):
+        #Print UI
+        self.UI()
+    return(1)
 
 
 
@@ -101,11 +109,12 @@ class game:
 #                         current card nubmer
 #            Index: Index of the current in the talon. Used for removing from the stock/talon
 #########################################################################################################  
-  def check_tableau_addition(self,card,tableau_num,index):                                                                 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FICIFIXFIXFIXFIXFIX!!!!!!!!!!!
+  def tableau_addition(self,tableau_num):                                                                 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FICIFIXFIXFIXFIXFIX!!!!!!!!!!!
     #add color checking feature
     #add number checking feature
     #document code
-
+    
+    card = self.talon[-1]
     tableau_num -= 1
     length = self.tableau[tableau_num]                          #tableau_num denotes the tableau to insert cards in
     top_tableau_card = self.tableau[tableau_num][-1]
@@ -117,11 +126,12 @@ class game:
       print("Operation not valid. Try Again")
       return False
     elif((top_tableau_card[1] == card[1]) and (top_tableau_card[2] < card[2])):
-      self.tableau[tableau_num].append(card)
-      
+      self.tableau[tableau_num].append(card)              #Adds the card to the tableau
+      self.talon.pop(-1)                               #Removes the card
       
       self.print_talon()
       self.print_tableua()
+      return True
 
     # length = self.tableau[slot_num]
     # tableau_card = self.tableau[slot_num][length-1]             #Card on the top of the selected tableau
@@ -140,8 +150,9 @@ class game:
 # num: Takes in the number of cards flipped in the turnstock process (starts from 0)
 #########################################################################################################  
 
-  def flip_stock(self,num):
+  def flip_stock(self):
     
+    print("SNVDJ")
     if(len(self.stock)>=3):
       self.talon.append(self.stock.pop())
       self.talon.append(self.stock.pop())
@@ -156,7 +167,6 @@ class game:
         self.stock.append(self.talon.pop())
     
   def print_talon(self):
-    
     print("|||||")
     print("|||||")
     print("|||||")
@@ -174,21 +184,40 @@ class game:
 
   def print_tableua(self):
     len_tableau = len(self.tableau)
-    for i in range(len_tableau):
+    i = len(self.tableau)
+    
+    for i in range(12):   #safe bound 12
+      counter = 0
       for j in range(7):
-        if(len(self.tableau[i][j] == [])):
-          print("     ")
-        print(self.tableau[i][j],end = "   ")
+        if(i<len(self.tableau[j]) and (len(self.tableau[i])>0)):
+          print(self.tableau[j][i],end = "  ")
+        elif(i>len(self.tableau[j])-1):
+          counter += 1
+          print("               ",end ="")
+        if(counter == 7):
+          break
+
+      print("\n")
+
+    #for i in range(len_tableau):
+    #  for j in range(len(self.tableau[i])):
+    #    if(len(self.tableau[i][j]) == 0):
+    #      print("     ")
+    #    print(self.tableau[i][j],end = "   ")
+    #    print("\n")
+    #print("\n\n")
 
   def UI(self):
         
-    self.print_talon
-    self.instructions()
+    #self.print_talon()
+    self.print_tableua()
     
     
-
 def main():
   a = game()
+  play = 1
+  while(play == 1):
+    play = a.instructions()
 
 main()
 
