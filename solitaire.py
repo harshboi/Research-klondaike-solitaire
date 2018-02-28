@@ -84,6 +84,11 @@ class game:
     print("3 to move a card from the foundation to the tableau ")
 
     inp = input("Choice ")
+
+    # if tableau
+    # call tableau to talon
+    # pass in index of the card
+
     return(inp)
 
 
@@ -91,24 +96,44 @@ class game:
   #def play(self):
     
 #########################################################################################################  
-#Parameters: slot_num: Which slot in the tableau should the card be inserted into
 #            card_color: what is the color of the card to check for alternating colors
 #            Card_number: Make sure whether the card to be inserted into the tableau is less than the 
 #                         current card nubmer
 #            Index: Index of the current in the talon. Used for removing from the stock/talon
 #########################################################################################################  
-  def check_tableau_addition(self,card,slot_num,index):
-    len = self.tableau[slot_num]
-    tableau_card = self.tableau[slot_num][len-1]  #Card on the top of the selected tableau
-    if(tableau_card[1] == card[1]):
-      return False
+  def check_tableau_addition(self,card,tableau_num,index):                                                                 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FICIFIXFIXFIXFIXFIX!!!!!!!!!!!
+    #add color checking feature
+    #add number checking feature
+    #document code
 
-    elif(tableau_card[2] < card[2]):
+    tableau_num -= 1
+    length = self.tableau[tableau_num]                          #tableau_num denotes the tableau to insert cards in
+    top_tableau_card = self.tableau[tableau_num][-1]
+    
+    if(top_tableau_card[1] == card[1]):
+      print("Operation not valid, Try Again")
       return False
+    elif(top_tableau_card[2] >= card[2]):
+      print("Operation not valid. Try Again")
+      return False
+    elif((top_tableau_card[1] == card[1]) and (top_tableau_card[2] < card[2])):
+      self.tableau[tableau_num].append(card)
+      
+      
+      self.print_talon()
+      self.print_tableua()
 
-    else:
-      self.tableau[slot_num].append(card)
-      self.talon.pop(index)
+    # length = self.tableau[slot_num]
+    # tableau_card = self.tableau[slot_num][length-1]             #Card on the top of the selected tableau
+    # if(tableau_card[1] == card[1]):
+    #   return False
+
+    # elif(tableau_card[2] < card[2]):
+    #   return False
+
+    # else:
+    #   self.tableau[slot_num].append(card)
+    #   self.talon.pop(index)
 
 #########################################################################################################  
 #Parameters:-
@@ -143,15 +168,17 @@ class game:
         print(self.talon[len_talon-2])
         print(self.talon[len_talon-1])
       else:
-        for i in range(len_talon)
+        for i in range(len_talon):
           print(self.talon[i])
 
 
   def print_tableua(self):
     len_tableau = len(self.tableau)
     for i in range(len_tableau):
-      for j in range(self.tableau[i]):
-        print
+      for j in range(7):
+        if(len(self.tableau[i][j] == [])):
+          print("     ")
+        print(self.tableau[i][j],end = "   ")
 
   def UI(self):
         
