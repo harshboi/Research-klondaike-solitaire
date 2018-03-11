@@ -2,6 +2,12 @@ import random
 import math
 import pdb
 
+
+# Create function for checking the state of the game
+# Create linked list for storing the state of the class itself
+# Testing for the foundation to tableau function
+
+
 class game:
   def __init__(self):
     #self.cards = {'K':[['B','S'],['B','C'],['R','D'],['R','D']],"Q":[['B','S'],['B','C'],['R','D'],['R','D']],"J":[['B','S'],['B','C'],['R','D'],['R','D']],"A":[['B','S'],['B','C'],['R','D'],['R','D']],"2":[['B','S'],['B','C'],['R','D'],['R','D']],"3":[['B','S'],['B','C'],['R','D'],['R','D']]}
@@ -10,7 +16,7 @@ class game:
     self.cards = []     # 
     self.tcards = []    # NOT USED PRESENTLY, JUST HOLDS A COPY OF EVERYTHING
     self.stock = []                             # Contains the decked to be flipped
-    self.foundation = {}
+    self.foundation = [[],[],[],[]]
     self.talon = []                            # Contains flipped cards
     self.tableau = [[],[],[],[],[],[],[]]       # 7 cards laid out aside eachother
     self.shuffle()
@@ -74,15 +80,17 @@ class game:
 #########################################################################################################
 
   def instructions(self):
-    inp = -1
     self.UI()
     if(len(self.stock) or (self.talon)>0):
-      print("1 to Flip the stock")  
+      print("1 to Flip the stock")                                            # Function Created
 
     if(len(self.talon)>0):
-      print("2 to move a card from the talon to the foundation or tableau")
+      print("2 to move a card from the talon to the foundation")              # Function Created 
     
-    print("3 to move a card from the foundation to the tableau ")
+    print("3 to move a card from the foundation to the tableau ")             # Created but not checked
+
+    if(len(self.stock)<3):
+      print("Press 4 to flip all the cards from talon back to stock")         # Function Created
 
     choice = input("Choice ")
     choice = int(choice)
@@ -91,17 +99,26 @@ class game:
       #print UI stuff
     elif(choice == 2):
       tableau_num = input("Enter the tableau number to move to ")
+      tableau_num = int(tableau_num)
       res = self.tableau_addition(tableau_num)
       if(res == 0):
-        print("Operation not possible")
+        print("Operation not possible") 
       elif(res == 1):
         #Print UI
         self.UI()
+    elif(choice ==4):
+        self.talon_to_stock()
+        
     return(1)
 
-
-
-  #def play(self):
+#########################################################################################################  
+# Moves all the elements of the talon back to the stock
+# Add 
+#########################################################################################################  
+  def talon_to_stock(self):
+    while(len(self.talon) > 1):
+      popped = self.talon.pop(-1)
+      self.stock.append(popped)
     
 #########################################################################################################  
 #            card_color: what is the color of the card to check for alternating colors
@@ -122,12 +139,14 @@ class game:
     if(top_tableau_card[1] == card[1]):
       print("Operation not valid, Try Again")
       return False
-    elif(top_tableau_card[2] >= card[2]):
+    elif(top_tableau_card[2] <= card[2]):
       print("Operation not valid. Try Again")
       return False
-    elif((top_tableau_card[1] == card[1]) and (top_tableau_card[2] < card[2])):
+    elif((top_tableau_card[1] != card[1]) and (top_tableau_card[2]-1 == card[2])):
       self.tableau[tableau_num].append(card)              #Adds the card to the tableau
-      self.talon.pop(-1)                               #Removes the card
+      self.talon.pop(-1)                  
+    else:
+      print("Operation not possible")             #Removes the card
       
       self.print_talon()
       self.print_tableua()
@@ -152,7 +171,6 @@ class game:
 
   def flip_stock(self):
     
-    print("SNVDJ")
     if(len(self.stock)>=3):
       self.talon.append(self.stock.pop())
       self.talon.append(self.stock.pop())
@@ -167,26 +185,32 @@ class game:
         self.stock.append(self.talon.pop())
     
   def print_talon(self):
+    print("\n\nTalon: \n")
     print("|||||")
     print("|||||")
     print("|||||")
-    print("|||||")
-    len_talon = len(self.talon)
-    if(len_talon > 0):
-      if(len_talon > 3):
-        print(self.talon[len_talon-3])
-        print(self.talon[len_talon-2])
-        print(self.talon[len_talon-1])
+    print("|||||\n")
+    #len_talon = len(self.talon)
+    if(len(self.talon) > 0):
+      if(len(self.talon) > 3):
+        print(self.talon[len(self.talon)-3])
+        print(self.talon[len(self.talon)-2])
+        print(self.talon[len(self.talon)-1])
       else:
-        for i in range(len_talon):
+        for i in range(len(self.talon)):
           print(self.talon[i])
 
 
   def print_tableua(self):
-    len_tableau = len(self.tableau)
     i = len(self.tableau)
-    
-    for i in range(12):   #safe bound 12
+    max = 0
+    print("\n\nTableau\n\n")
+    for i in range(7):
+      temp = len(self.tableau[i])
+      if(temp>max):
+        max = temp  
+
+    for i in range(max):   #safe bound 12
       counter = 0
       for j in range(7):
         if(i<len(self.tableau[j]) and (len(self.tableau[i])>0)):
@@ -196,20 +220,23 @@ class game:
           print("               ",end ="")
         if(counter == 7):
           break
-
       print("\n")
+    print("\n")    
 
-    #for i in range(len_tableau):
-    #  for j in range(len(self.tableau[i])):
-    #    if(len(self.tableau[i][j]) == 0):
-    #      print("     ")
-    #    print(self.tableau[i][j],end = "   ")
-    #    print("\n")
-    #print("\n\n")
+  #def print_foundation(self):
+    #for
+
+  def foundation_to_tableau(self,card,pos):
+    if(len(self.foundation[pos]) == 0):
+      self.foundation[pos].append(card)
+    elif(self.foundation[pos][-1][2] < card[2]):
+      self.foundation[pos].append(card)
+    else:
+      print("Operation not possuble")
 
   def UI(self):
         
-    #self.print_talon()
+    self.print_talon()
     self.print_tableua()
     
     
