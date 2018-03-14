@@ -3,9 +3,11 @@ import math
 import pdb
 
 
-# Create function for checking the state of the game
-# Create linked list for storing the state of the class itself
+# Create function for checking the state of the game (Win/Loss)   --  DONE
+# Create linked list for storing the state of the class itself    
 # Testing for the foundation to tableau function
+# Imporve UI
+# Integrate with Alex's code
 
 
 class game:
@@ -13,7 +15,7 @@ class game:
     #self.cards = {'K':[['B','S'],['B','C'],['R','D'],['R','D']],"Q":[['B','S'],['B','C'],['R','D'],['R','D']],"J":[['B','S'],['B','C'],['R','D'],['R','D']],"A":[['B','S'],['B','C'],['R','D'],['R','D']],"2":[['B','S'],['B','C'],['R','D'],['R','D']],"3":[['B','S'],['B','C'],['R','D'],['R','D']]}
     #self.cards.update({"4":[['B','S'],['B','C'],['R','D'],['R','D']],"5":[['B','S'],['B','C'],['R','D'],['R','D']],"6":[['B','S'],['B','C'],['R','D'],['R','D']],"7":[['B','S'],['B','C'],['R','D'],['R','D']],"8":[['B','S'],['B','C'],['R','D'],['R','D']],"9":[['B','S'],['B','C'],['R','D'],['R','D']],"10":[['B','S'],['B','C'],['R','D'],['R','D']]})
     #self.cards.update({"A":[['B','S'],['B','C'],['R','D'],['R','D']]})
-    self.cards = []     # 
+    self.cards = []     # NOT USED, REMOVE
     self.tcards = []    # NOT USED PRESENTLY, JUST HOLDS A COPY OF EVERYTHING
     self.stock = []                             # Contains the decked to be flipped
     self.foundation = [[],[],[],[]]
@@ -69,7 +71,7 @@ class game:
     self.cards = n
 
   def create_stock(self):
-    for i in range(0,24):
+    for i in range(0,24):                           # CHANGE TO WHILE LOOP, perform testing (Mostly works)
       #pdb.set_trace()
       x = random.randint(0,len(self.cards)-1)
       self.stock.append(self.cards[x])
@@ -85,10 +87,10 @@ class game:
       print("1 to Flip the stock")                                            # Function Created
 
     if(len(self.talon)>0):
-      print("2 to move a card from the talon to the foundation")              # Function Created 
+      print("2 to move a card from the talon to the tableau")              # Function Created 
     
-    print("3 to move a card from the foundation to the tableau ")             # Created but not checked
-
+    print("3 to move a card from the tableau to the foundation")             # Created but not checked
+    print("4 to move a card from the talon to the foundation")
     if(len(self.stock)<3):
       print("Press 4 to flip all the cards from talon back to stock")         # Function Created
 
@@ -106,6 +108,11 @@ class game:
       elif(res == 1):
         #Print UI
         self.UI()
+    elif(choice ==3):
+        foundation_num = input("Enter the foundation to move the card to (1-4) ")
+        foundation_num = int(tableau_num)
+        tableau_num = input("Enter the tableau to move the card from (1-7)")
+        add_foundation(tableau_num-1,foundation_num-1)
     elif(choice ==4):
         self.talon_to_stock()
         
@@ -225,26 +232,72 @@ class game:
 
   #def print_foundation(self):
     #for
+#########################################################################################################  
+# card_pos: tableau number (automatically choses the top most card in the selected tableau)
+# pos: the foundation slot to insert the card into
+#########################################################################################################  
 
-  def foundation_to_tableau(self,card,pos):
+  def tableau_to_foundation(self,card_pos,pos):
+    card = self.tableau[card_pos][-1]             # card to be moved
     if(len(self.foundation[pos]) == 0):
+      if(card[2] == 1):    
+        self.foundation[pos].append(card)
+        self.tableau[card_pos].pop(-1)
+      else:
+        print("Operation not possuble\n\n")        
+    elif(self.foundation[pos][-1][2] == card[2]-1):
       self.foundation[pos].append(card)
-    elif(self.foundation[pos][-1][2] < card[2]):
-      self.foundation[pos].append(card)
+      self.tableau[card_pos].pop(-1)
     else:
-      print("Operation not possuble")
+      print("Operation not possuble\n\n")
+
+########################################################################################################  
+# pos: the foundation slot to insert the card into
+########################################################################################################  
+
+  def talon_to_foundation(self,pos):
+    card = self.talon[-1]
+    if(len(self.foundation[pos]) == 0):
+      if(card[2] == 1):
+        self.foundation[pos].append(card)
+        self.talon.pop(-1)
+      else:
+        print("Operation not possuble\n\n")
+    elif(self.foundation[pos][2] == card[2]-1):
+      self.foundation[pos].append(card)
+      self.talon.pop(-1)      
 
   def UI(self):
         
     self.print_talon()
     self.print_tableua()
     
+  def win(self):
+    t_cards_foundation = 0
+    for i in range(4):
+      t_cards_foundation += len(self.foundation[i])
     
+    if(t_cards_foundation == 52):
+      print("Congratulations, you win")
+      # ADD FUNCTIONALITY FOR ALERTING GAME OVER
+    
+    
+
+class game_states(game):
+  def __init__(self):
+    super().__init__()
+    self.stage = []
+
+  def add_state(self,obj):
+    self.stage.append(obj)
+
 def main():
   a = game()
+  state = game_states()
   play = 1
   while(play == 1):
     play = a.instructions()
+    state.add_state(a)
 
 main()
 
