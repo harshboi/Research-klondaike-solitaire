@@ -4,8 +4,9 @@ import pdb
 
 
 # Testing for the foundation to tableau function          
-# Imporve UI
+# Imporve UI  --  PARTIALLY DONE
 # Integrate with Alex's codes
+# Create Foundation UI
 
 
 class game:
@@ -23,7 +24,7 @@ class game:
   
   def shuffle(self):
 
-    n = []    
+    n = []
     for i in range(1,11):
       n.append(['D','R',i])
       n.append(['H','R',i])
@@ -110,7 +111,7 @@ class game:
         foundation_num = input("Enter the foundation to move the card to (1-4) ")
         foundation_num = int(tableau_num)
         tableau_num = input("Enter the tableau to move the card from (1-7)")
-        tableau_to_foundation(tableau_num-1,foundation_num-1)
+        self.tableau_to_foundation(tableau_num-1,foundation_num-1)
     elif(choice ==4):
         self.talon_to_stock()
         
@@ -225,6 +226,12 @@ class game:
             num += " "
           if(self.tableau[j][i][2] == 1):
             num = "A "
+          elif(self.tableau[j][i][2] == 11):
+            num = "J "
+          elif(self.tableau[j][i][2] == 12):
+            num = "Q "
+          elif(self.tableau[j][i][2] == 13):
+            num = "K "                    
           output = self.tableau[j][i][0] + " " + self.tableau[j][i][1] + " " + num + "  |  "
           print(output,end = "  ")
         elif(i>len(self.tableau[j])-1):
