@@ -3,11 +3,9 @@ import math
 import pdb
 
 
-# Create function for checking the state of the game (Win/Loss)   --  DONE
-# Create linked list for storing the state of the class itself    
-# Testing for the foundation to tableau function
+# Testing for the foundation to tableau function          
 # Imporve UI
-# Integrate with Alex's code
+# Integrate with Alex's codes
 
 
 class game:
@@ -112,7 +110,7 @@ class game:
         foundation_num = input("Enter the foundation to move the card to (1-4) ")
         foundation_num = int(tableau_num)
         tableau_num = input("Enter the tableau to move the card from (1-7)")
-        add_foundation(tableau_num-1,foundation_num-1)
+        tableau_to_foundation(tableau_num-1,foundation_num-1)
     elif(choice ==4):
         self.talon_to_stock()
         
@@ -221,10 +219,17 @@ class game:
       counter = 0
       for j in range(7):
         if(i<len(self.tableau[j]) and (len(self.tableau[i])>0)):
-          print(self.tableau[j][i],end = "  ")
+          output = ""
+          num = str(self.tableau[j][i][2])
+          if(int(num)<10):
+            num += " "
+          if(self.tableau[j][i][2] == 1):
+            num = "A "
+          output = self.tableau[j][i][0] + " " + self.tableau[j][i][1] + " " + num + "  |  "
+          print(output,end = "  ")
         elif(i>len(self.tableau[j])-1):
           counter += 1
-          print("               ",end ="")
+          print("             ",end ="")
         if(counter == 7):
           break
       print("\n")
