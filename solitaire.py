@@ -2,9 +2,9 @@ import random
 import math
 import pdb
 
-
+# Rewrite UX_talon    --    DONE
 # Testing for the foundation to tableau function          
-# Imporve UI  --  PARTIALLY DONE
+# Imporve UI  --  DONE
 # Integrate with Alex's codes
 # Create Foundation UI
 
@@ -74,7 +74,7 @@ class game:
       #pdb.set_trace()
       x = random.randint(0,len(self.cards)-1)
       self.stock.append(self.cards[x])
-      self.cards.pop(x)
+      self.cards.pop(x) 
 
 #########################################################################################################
 # Prints the instructions
@@ -158,17 +158,7 @@ class game:
       self.print_tableua()
       return True
 
-    # length = self.tableau[slot_num]
-    # tableau_card = self.tableau[slot_num][length-1]             #Card on the top of the selected tableau
-    # if(tableau_card[1] == card[1]):
-    #   return False
 
-    # elif(tableau_card[2] < card[2]):
-    #   return False
-
-    # else:
-    #   self.tableau[slot_num].append(card)
-    #   self.talon.pop(index)
 
 #########################################################################################################  
 #Parameters:-
@@ -190,27 +180,49 @@ class game:
       for i in range(len(self.talon)):
         self.stock.append(self.talon.pop())
     
+  def UX_talon(self,card_num):
+    output = ""
+    card = self.talon[card_num]
+    num = str(card[2])
+    if(int(num)<10):
+      num += " "
+    if(card[2] == 1):
+      num = "A "
+    elif(card[2] == 11):
+      num = "J "
+    elif(card[2] == 12):
+      num = "Q "
+    elif(card[2] == 13):
+      num = "K "                    
+    output = card[0] + " " + card[1] + " " + num
+    return output
+
   def print_talon(self):
-    print("\n\nTalon: \n")
+    print("\n\n                                     Talon:\n")
     print("|||||")
     print("|||||")
     print("|||||")
     print("|||||\n")
+    output = ""
     #len_talon = len(self.talon)
     if(len(self.talon) > 0):
       if(len(self.talon) > 3):
-        print(self.talon[len(self.talon)-3])
-        print(self.talon[len(self.talon)-2])
-        print(self.talon[len(self.talon)-1])
+        loop = 1
+        while(loop < 4):
+          output = self.UX_talon((len(self.talon)-loop))
+          print(output + "\n")
+          loop += 1
       else:
-        for i in range(len(self.talon)):
-          print(self.talon[i])
+        x = len(self.talon)
+        while(x >= 0):
+          output = self.UX_talon(x-1)
+          x -= 1
 
 
   def print_tableua(self):
     i = len(self.tableau)
     max = 0
-    print("\n\nTableau\n\n")
+    print("\n\n                                     Tableau\n\n")
     for i in range(7):
       temp = len(self.tableau[i])
       if(temp>max):
