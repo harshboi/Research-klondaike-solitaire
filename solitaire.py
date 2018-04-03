@@ -159,6 +159,40 @@ class game:
       return True
 
 
+#########################################################################################################  
+# card_pos: tableau number (automatically choses the top most card in the selected tableau)
+# pos: the foundation slot to insert the card into
+#########################################################################################################  
+
+  def tableau_to_foundation(self,card_pos,pos):
+    card = self.tableau[card_pos][-1]             # card to be moved
+    if(len(self.foundation[pos]) == 0):
+      if(card[2] == 1):    
+        self.foundation[pos].append(card)
+        self.tableau[card_pos].pop(-1)
+      else:
+        print("Operation not possuble\n\n")        
+    elif(self.foundation[pos][-1][2] == card[2]-1):
+      self.foundation[pos].append(card)
+      self.tableau[card_pos].pop(-1)
+    else:
+      print("Operation not possuble\n\n")
+
+########################################################################################################  
+# pos: the foundation slot to insert the card into
+########################################################################################################  
+
+  def talon_to_foundation(self,pos):
+    card = self.talon[-1]
+    if(len(self.foundation[pos]) == 0):
+      if(card[2] == 1):
+        self.foundation[pos].append(card)
+        self.talon.pop(-1)
+      else:
+        print("Operation not possible\n\n")
+    elif(self.foundation[pos][2] == card[2]):           #CHANGED, MAYBE ERROR
+      self.foundation[pos].append(card)
+      self.talon.pop(-1)      
 
 #########################################################################################################  
 #Parameters:-
@@ -256,45 +290,41 @@ class game:
 
   #def print_foundation(self):
     #for
-#########################################################################################################  
-# card_pos: tableau number (automatically choses the top most card in the selected tableau)
-# pos: the foundation slot to insert the card into
-#########################################################################################################  
 
-  def tableau_to_foundation(self,card_pos,pos):
-    card = self.tableau[card_pos][-1]             # card to be moved
-    if(len(self.foundation[pos]) == 0):
-      if(card[2] == 1):    
-        self.foundation[pos].append(card)
-        self.tableau[card_pos].pop(-1)
+  def print_foundation(self):
+    print("\n                                       Foundation\n\n")
+    for i in range(3):
+      if(len(self.foundation[i]) > 0):
+        output = self.UX_foundation()
+        print(output)
+        print("            ")
       else:
-        print("Operation not possuble\n\n")        
-    elif(self.foundation[pos][-1][2] == card[2]-1):
-      self.foundation[pos].append(card)
-      self.tableau[card_pos].pop(-1)
-    else:
-      print("Operation not possuble\n\n")
+        print("            ")
+    
 
-########################################################################################################  
-# pos: the foundation slot to insert the card into
-########################################################################################################  
+  def UX_foundation(self):
+    output = ""
+    card = self.foundation[-1]
+    num = str(card[2])
+    if(int(num)<10):
+      num += " "
+    if(card[2] == 1):
+      num = "A "
+    elif(card[2] == 11):
+      num = "J "
+    elif(card[2] == 12):
+      num = "Q "
+    elif(card[2] == 13):
+      num = "K "                    
+    output = card[0] + " " + card[1] + " " + num
+    return output
 
-  def talon_to_foundation(self,pos):
-    card = self.talon[-1]
-    if(len(self.foundation[pos]) == 0):
-      if(card[2] == 1):
-        self.foundation[pos].append(card)
-        self.talon.pop(-1)
-      else:
-        print("Operation not possuble\n\n")
-    elif(self.foundation[pos][2] == card[2]-1):
-      self.foundation[pos].append(card)
-      self.talon.pop(-1)      
 
   def UI(self):
         
     self.print_talon()
     self.print_tableua()
+    self.print_foundation()
     
   def win(self):
     t_cards_foundation = 0
