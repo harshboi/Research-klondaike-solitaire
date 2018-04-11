@@ -3,10 +3,11 @@ import math
 import pdb
 
 # Rewrite UX_talon    --    DONE
+# Add Scoring Function  --  STARTED
 # Testing for the foundation to tableau function          
 # Imporve UI  --  DONE
 # Integrate with Alex's codes
-# Create Foundation UI
+# Create Foundation UI  --  DONE   (TEST Remaining)
 
 
 class game:
@@ -21,6 +22,7 @@ class game:
     self.talon = []                            # Contains flipped cards
     self.tableau = [[],[],[],[],[],[],[]]       # 7 cards laid out aside eachother
     self.shuffle()
+    self.score = 0
   
   def shuffle(self):
 
@@ -214,6 +216,10 @@ class game:
       for i in range(len(self.talon)):
         self.stock.append(self.talon.pop())
     
+  def score(self,move_type):
+    if(move_type == 1):
+          
+
   def UX_talon(self,card_num):
     output = ""
     card = self.talon[card_num]
