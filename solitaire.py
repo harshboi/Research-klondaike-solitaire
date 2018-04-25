@@ -23,6 +23,7 @@ class game:
     self.tableau = [[],[],[],[],[],[],[]]       # 7 cards laid out aside eachother
     self.shuffle()
     self.score = 0
+    self.stock_resets = 0;
   
   def shuffle(self):
 
@@ -169,14 +170,16 @@ class game:
   def tableau_to_foundation(self,card_pos,pos):
     card = self.tableau[card_pos][-1]             # card to be moved
     if(len(self.foundation[pos]) == 0):
-      if(card[2] == 1):    
+      if(card[2] == 1):                           # Checks if card is an ACE
         self.foundation[pos].append(card)
         self.tableau[card_pos].pop(-1)
+        self.scoring(2)
       else:
         print("Operation not possuble\n\n")        
-    elif(self.foundation[pos][-1][2] == card[2]-1):
+    elif((self.foundation[pos][-1][2] == card[2]-1) && (self.foundation[pos][-1][0]) == card[0]):
       self.foundation[pos].append(card)
       self.tableau[card_pos].pop(-1)
+      self.scoring(2)
     else:
       print("Operation not possuble\n\n")
 
@@ -190,11 +193,13 @@ class game:
       if(card[2] == 1):
         self.foundation[pos].append(card)
         self.talon.pop(-1)
+        self.scoring(2)
       else:
         print("Operation not possible\n\n")
-    elif(self.foundation[pos][2] == card[2]):           #CHANGED, MAYBE ERROR
+    elif(self.foundation[pos][2] == card[2]-1):           #CHANGED, MAYBE ERROR
       self.foundation[pos].append(card)
-      self.talon.pop(-1)      
+      self.talon.pop(-1)
+      self.scoring(2)      
 
 #########################################################################################################  
 #Parameters:-
@@ -213,12 +218,28 @@ class game:
         self.talon.append(self.stock.pop())
 
     elif(len(self.stock) == 0):
+      if(self.stock_resets == 3):
+        self.scoring(3);    # Will deduct points
+      self.stock_resets += 1;
       for i in range(len(self.talon)):
         self.stock.append(self.talon.pop())
     
-  def score(self,move_type):
+#########################################################################################################  
+# move types:
+# 1 - to tableau
+# 2 - to foundation
+# 3 - tableau to foundation
+#########################################################################################################  
+    
+  def scoring(self,move_type):
     if(move_type == 1):
-          
+      self.score += 5;
+    elif(move_type == 2):
+      self.score += 10;
+    elif(move_type == 3):
+      self.score -= 25;
+      if(self.score<0):
+        self.score = 0;
 
   def UX_talon(self,card_num):
     output = ""
