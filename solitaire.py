@@ -112,7 +112,7 @@ class game:
         self.UI()
     elif(choice ==3):
         foundation_num = input("Enter the foundation to move the card to (1-4) ")
-        foundation_num = int(tableau_num)
+        foundation_num = int(foundation_num)
         tableau_num = input("Enter the tableau to move the card from (1-7)")
         self.tableau_to_foundation(tableau_num-1,foundation_num-1)
     elif(choice ==4):
@@ -176,7 +176,7 @@ class game:
         self.scoring(2)
       else:
         print("Operation not possuble\n\n")        
-    elif((self.foundation[pos][-1][2] == card[2]-1) && (self.foundation[pos][-1][0]) == card[0]):
+    elif((self.foundation[pos][-1][2] == card[2]-1) and (self.foundation[pos][-1][0]) == card[0]):
       self.foundation[pos].append(card)
       self.tableau[card_pos].pop(-1)
       self.scoring(2)
@@ -196,7 +196,7 @@ class game:
         self.scoring(2)
       else:
         print("Operation not possible\n\n")
-    elif(self.foundation[pos][2] == card[2]-1):           #CHANGED, MAYBE ERROR
+    elif((self.foundation[pos][-1][2] == card[2]-1) and (self.foundation[pos][-1][0] == card[0])):           #CHANGED, MAYBE ERROR
       self.foundation[pos].append(card)
       self.talon.pop(-1)
       self.scoring(2)      
@@ -275,8 +275,9 @@ class game:
           loop += 1
       else:
         x = len(self.talon)
-        while(x >= 0):
+        while(x > 0):
           output = self.UX_talon(x-1)
+          print(output + "\n")
           x -= 1
 
 
