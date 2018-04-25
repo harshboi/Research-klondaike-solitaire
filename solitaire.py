@@ -107,13 +107,14 @@ class game:
       res = self.tableau_addition(tableau_num)
       if(res == 0):
         print("Operation not possible") 
-      elif(res == 1):
+      # elif(res == 1):
         #Print UI
-        self.UI()
+        # self.UI()
     elif(choice ==3):
+        tableau_num = input("Enter the tableau to move the card from (1-7)")
+        tableau_num = int(tableau_num)
         foundation_num = input("Enter the foundation to move the card to (1-4) ")
         foundation_num = int(foundation_num)
-        tableau_num = input("Enter the tableau to move the card from (1-7)")
         self.tableau_to_foundation(tableau_num-1,foundation_num-1)
     elif(choice ==4):
         self.talon_to_stock()
@@ -153,7 +154,8 @@ class game:
       return False
     elif((top_tableau_card[1] != card[1]) and (top_tableau_card[2]-1 == card[2])):
       self.tableau[tableau_num].append(card)              #Adds the card to the tableau
-      self.talon.pop(-1)                  
+      self.talon.pop(-1)
+      self.scoring(1)
     else:
       print("Operation not possible")             #Removes the card
       
@@ -332,8 +334,8 @@ class game:
 
   def UX_foundation(self):
     output = ""
-    card = self.foundation[-1]
-    num = str(card[2])
+    card = self.foundation[-1]        # ERROR
+    num = card[2]                 #experimental
     if(int(num)<10):
       num += " "
     if(card[2] == 1):
