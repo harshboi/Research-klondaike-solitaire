@@ -118,8 +118,9 @@ class game:
         self.tableau_to_foundation(tableau_num-1,foundation_num-1)
     elif(choice ==4):
         self.talon_to_stock()
-        
-    return(1)
+    
+    win = self.win()
+    return(win)
 
 #########################################################################################################  
 # Moves all the elements of the talon back to the stock
@@ -323,10 +324,11 @@ class game:
 
   def print_foundation(self):
     print("\n                                       Foundation\n\n")
-    for i in range(3):
+    for i in range(4):
       if(len(self.foundation[i]) > 0):
-        output = self.UX_foundation()
-        print(output)
+        # output = self.UX_foundation()         # FIX (error in UX_foundation())
+        print(self.foundation[i])
+        # print(output)
         print("            ")
       else:
         print("            ")
@@ -363,9 +365,24 @@ class game:
     
     if(t_cards_foundation == 52):
       print("Congratulations, you win")
+      return(0)
+
+    return(1)
       # ADD FUNCTIONALITY FOR ALERTING GAME OVER
-    
-    
+
+  def return_foundation(self):
+    return(self.foundation)
+  
+  def return_talon(self):
+    return(self.talon)
+  
+  def return_stock(self):
+    return(self.stock)
+
+  def return_tableau(self):
+    return(self.tableau)
+
+
 
 class game_states(game):
   def __init__(self):
