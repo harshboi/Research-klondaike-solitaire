@@ -1,2 +1,2 @@
 # Research-klondaike-solitaire
-Repository for Prasad's Klondaike Solitaire Research
+Repository for Dr. Prasad's Klondaike Solitaire Research
