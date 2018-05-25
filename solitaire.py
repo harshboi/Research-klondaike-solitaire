@@ -3,7 +3,8 @@ import numpy as np
 import os
 import pygame
 from abstract import abstract_state
-from dealers.simulators.chesscode import chess
+from solitaire_code import solitaire
+import pdb
 
 
 class SolitaireState(abstract_state.AbstractState):
@@ -11,36 +12,36 @@ class SolitaireState(abstract_state.AbstractState):
     num_players = 2
 
     def __init__(self):
-        self.current_state = chess.Board()
-        self.current_state.set_pieces()
+        self.current_state = solitaire.game()
+        self.current_state.shuffle()
         self.game_outcome = None  # 0 - player 1 won, 'draw' - draw, 1 - player 2 won, None - game not over
 
         self.resources = {}  # sprites for pygame
 
     def reinitialize(self):
-        self.current_state = chess.Board()
-        self.current_state.set_pieces()  # set up initial piece configuration
+        self.current_state = solitaire.game()
+        self.current_state.shuffle()  # set up initial piece configuration
         self.current_player = 0
         self.game_outcome = None
 
-    def clone(self):
+    def clone(self):            # Internal Python3.6 function
         new_state = copy.copy(self)
         new_state.current_state = copy.copy(self.current_state)
         return new_state
 
     def set(self, state):
         self.current_state = state.current_state
-        self.current_player = state.current_player
+        # self.current_player = state.current_player
         self.game_outcome = state.game_outcome
 
-    def take_action(self, action):
-        reward = self.current_state.move_piece(action)
-
-        self.current_state.last_action, previous_player = action, self.current_player
-        self.update_current_player()                # Can be found in abstract_state.py
+    def take_action(self, action):         # What is action    ERROR
+        reward = self.current_state.move_piece()
+        pdb.set_trace()
+        self.current_state.last_action, previous_player = action, self.current_player   # Setup functions for last_action  ERROR  // Global CHANGE of previous_player to previous_action
+        self.b_player()                # Can be found in abstract_state.py
 
         self.current_state.cached_actions = []
-        self.get_actions()
+        self.get_actions()  # Line 53
         if len(self.current_state.cached_actions) == 0:
             self.game_outcome = previous_player if self.current_state.is_checked(self.get_current_color()) else 'draw'
             if self.game_outcome != 'draw':
