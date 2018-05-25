@@ -444,3 +444,30 @@ def take_action(self, action):         # What is action    ERROR
         # The current player gets the opposite of the reward (e.g. losing a piece)
         # return np.array([-1 * reward if player_idx == self.current_player else reward
                         #  for player_idx in range(self.num_players)])
+
+
+#Files to investigate
+
+
+# File "../dealers/native_dealer.py", line 182, in run_trial
+#     action_to_take = self.agents[current_state.current_player].select_action(current_state)
+#   File "../agents/frameworks/recursive_bandit_framework.py", line 26, in select_action
+#     return self.estimateV(state, self.depth)[1]  # return the best action
+#   File "../agents/frameworks/recursive_bandit_framework.py", line 55, in estimateV
+#     arm_data = self.run_pull(state, bandit, depth)
+#   File "../agents/frameworks/recursive_bandit_framework.py", line 75, in run_pull
+#     future_reward = self.estimateV(current_state, depth - 1)[0]  # [0] references the q_values for best action
+#   File "../agents/frameworks/recursive_bandit_framework.py", line 34, in estimateV
+#     return self.evaluation.evaluate(state), None  # no more depth, so default to the evaluation fn
+#   File "../agents/evaluations/rollout_evaluation.py", line 19, in evaluate
+#     total_rewards += self.run_rollout(state)
+#   File "../agents/evaluations/rollout_evaluation.py", line 32, in run_rollout
+#     rewards += sim_state.take_action(action)
+#   File "../dealers/simulators/chess.py", line 39, in take_action
+#     self.current_state.last_action, previous_player = action, self.current_player
+#   File "../dealers/simulators/chess.py", line 39, in take_action
+#     self.current_state.last_action, previous_player = action, self.current_player
+#   File "/usr/lib/python3.6/bdb.py", line 51, in trace_dispatch
+#     return self.dispatch_line(frame)
+#   File "/usr/lib/python3.6/bdb.py", line 70, in dispatch_line
+#     if self.quitting: raise BdbQuit
