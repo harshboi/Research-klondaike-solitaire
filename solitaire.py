@@ -53,11 +53,11 @@ class SolitaireState(abstract_state.AbstractState):
 
     def get_actions(self):
         if len(self.current_state.cached_actions) == 0:
-            self.current_state.cached_actions = self.current_state.get_actions(self.get_current_color())
+            self.current_state.cached_actions = self.current_state.get_actions()
         return self.current_state.cached_actions
 
-    def get_current_color(self):
-        return 'white' if self.current_player == 0 else 'black'
+    # def get_current_color(self):
+        # return 'white' if self.current_player == 0 else 'black'
 
     def get_value_bounds(self):
         king_value = self.current_state.piece_values['k']  # defeat / victory
@@ -69,6 +69,8 @@ class SolitaireState(abstract_state.AbstractState):
 
     def is_terminal(self):
         return self.game_outcome is not None
+
+# NEXT 2 FUNCTIONS MAY BE REDUNDANT
 
     def render(self):
         """Render the game board, creating a tkinter window if needed."""
@@ -112,6 +114,7 @@ class SolitaireState(abstract_state.AbstractState):
                 name = abbreviation + color  # construct image name
                 image = pygame.image.load_extended(os.path.join(path, name + '.png'))
                 self.resources[name] = pygame.transform.scale(image, (self.tile_size, self.tile_size))
+
 
     def __eq__(self, other):
         return self.__hash__() == other.__hash__()

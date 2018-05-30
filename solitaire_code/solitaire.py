@@ -3,12 +3,9 @@ import math
 import pdb
 from itertools import chain
 
-  # Rewrite UX_talon    --    DONE
-  # Add Scoring Function  --  STARTED
+  # create is_legal function and add all states i.e. actions from stock to tableau (like all 7 actions that can be possible (call is_legal and check whatst possible))  
   # Testing for the foundation to tableau function
-  # Imporve UI  --  DONE
   # Integrate with Alex's codes
-  # Create Foundation UI  --  DONE   (TEST Remaining)
 
 
 class game:
@@ -248,6 +245,17 @@ class game:
       if(self.score<0):
         self.score = 0;
 
+  def return_scoring (self, move_type):
+    if(move_type == 1):
+          return(5);
+    elif(move_type == 2):
+      return 10;
+    elif(move_type == 3):
+      if (self.score - 25 > 0):
+        return -25
+      else:
+        return (25-self.score)
+
   def UX_talon(self,card_num):
     output = ""
     card = self.talon[card_num]
@@ -428,7 +436,7 @@ main()
 
 def take_action(self, action):         # What is action    ERROR
         # reward = self.current_state.move_piece(action)
-
+    reward = self.current_state. 
         # IMPLEMENT a call that actually moves stuff
 
         pdb.set_trace()
@@ -442,8 +450,8 @@ def take_action(self, action):         # What is action    ERROR
             # self.game_outcome = previous_player if self.current_state.is_checked(self.get_current_color()) else 'draw'
 
         # The current player gets the opposite of the reward (e.g. losing a piece)
-        # return np.array([-1 * reward if player_idx == self.current_player else reward
-                        #  for player_idx in range(self.num_players)])
+        return np.array([-1 * reward if player_idx == self.current_player else reward
+                         for player_idx in range(self.num_players)])
 
 
 #Files to investigate
