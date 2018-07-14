@@ -60,6 +60,7 @@ class SolitaireState(abstract_state.AbstractState):
         # return 'white' if self.current_player == 0 else 'black'
 
     def get_value_bounds(self):
+        pdb.set_trace()
         king_value = self.current_state.piece_values['k']  # defeat / victory
         queen_value = self.current_state.piece_values['q']
         return {'defeat': -1 * king_value, 'victory': king_value,
@@ -124,3 +125,4 @@ class SolitaireState(abstract_state.AbstractState):
 
     def __str__(self):
         return self.current_state.__str__()  # print board
+    
