@@ -3,6 +3,7 @@ import math
 import pdb
 from itertools import chain
 
+global str
 
   # CHANGE architecture from (1-7) to (0-6)
   # create is_legal function and add all states i.e. actions from stock to tableau (like all 7 actions that can be possible (call is_legal and check whatst possible))
@@ -87,7 +88,7 @@ class game:
 
   def instructions(self):
     self.UI()
-    if(len(self.stock) or (self.talon)>0):
+    if(len(self.stock)>0 or len(self.talon)>0):
       print("1 to Flip the stock")                                            # Function Created
 
     if(len(self.talon)>0):
@@ -104,7 +105,7 @@ class game:
       self.flip_stock()
       #print UI stuff
     elif(choice == 2):
-      tableau_num = input("Enter the tableau number to move to ")
+      tableau_num = input("Enter the tableau number (0-6) to move to ")
       tableau_num = int(tableau_num)
       res = self.tableau_addition(tableau_num)
       if(res == 0):
@@ -113,11 +114,11 @@ class game:
         #Print UI
         # self.UI()
     elif(choice ==3):
-      tableau_num = input("Enter the tableau to move the card from (1-7)")
+      tableau_num = input("Enter the tableau to move the card from (0-6)")
       tableau_num = int(tableau_num)
-      foundation_num = input("Enter the foundation to move the card to (1-4) ")
+      foundation_num = input("Enter the foundation to move the card to (0-3) ")
       foundation_num = int(foundation_num)
-      self.tableau_to_foundation(tableau_num-1,foundation_num-1)
+      self.tableau_to_foundation(tableau_num,foundation_num)
     elif(choice ==4):
       self.talon_to_stock()
     elif(choice == 5):
@@ -151,12 +152,11 @@ class game:
   # Index: Index of the current in the talon. Used for removing from the stock/talon
   #########################################################################################################
   def tableau_addition(self,tableau_num):   #talon_to_tableau                                                              # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FICIFIXFIXFIXFIXFIX!!!!!!!!!!!
-    #add color checking feature
-    #add number checking feature
-    #document code
+    #add color checking feature   -- Maybe done
+    #add number checking feature  -- Maybe done
 
     card = self.talon[-1]
-    tableau_num -= 1
+    # tableau_num -= 1    # architecture change (0-6)
     length = self.tableau[tableau_num]                          #tableau_num denotes the tableau to insert cards in
     top_tableau_card = self.tableau[tableau_num][-1]
 
@@ -407,7 +407,8 @@ class game:
 
   def is_legal(self, action):
     #talon to tableau
-    if(action.find("t to") and action.find("ta")):  #talon to tableua
+    pdb.set_trace()
+    if((action.find("t to") != -1) and (action.find("ta") != -1)):  #talon to tableua
       card = self.talon[-1]
       tableau_num = action[7]   # ex: t to ta6
       length = self.tableau[tableau_num]                          #tableau_num denotes the tableau to insert cards in
@@ -428,7 +429,7 @@ class game:
         return False
 
     elif (action.find("fl")):
-      return true;
+      return True;
 
     # talbeau to foundation
     elif (action.find("to f") and action.find("ta")):
@@ -465,16 +466,18 @@ class game:
         # self.foundation[pos].append(card)
         # self.talon.pop(-1)
         # self.scoring(2)
-
     else: #ex: ta2 to ta3
-      stock_num = action[9]
-      tableau_num = action[2]
-      # length = self.tableau[tableau_num]                          #tableau_num denotes the tableau to insert cards in
-      top_tableau_card = self.tableau[tableau_num][-1]
-      if((initial_tableau[1] != final_tableau[1]) and (initial_tableau[2]-1 == final_tableau[2])):
-        return True  
+      final_tableau = action[9]
+      initial_tableau = action[2]
+      if((self.tableau[initial_tableau][-1][1] != self.tableau[final_tableau][-1][1]) and (self.tableau[initial_tableau][-1][2] == self.tableau[final_tableau][-1][2]-1)):
+        # self.tableau[final_tableau].append(self.tableau[initial_tableau][-1])              #Adds the card to the tableau
+        # self.tableau[initial_tableau].pop(-1)
+        # self.scoring(1)        // No scores given for moving a card with the tableau
+        return True
       else:
+        # print("Operation not possible")             #Removes the card
         return False
+
 
   def return_score (self):
     return self.score;
@@ -500,33 +503,34 @@ class game:
 
   def get_actions(self):
     possible_actions = []
+    pdb.set_trace()
     for i in range(7):
       if(len(self.tableau[i]) > 0):
         string_builder = "fl"               #fl - flip the talon
         possible_actions.append(string_builder)
         for i in range(7):    # 7 is the number of tableaus
           string_builder = "t to ta" + str(i)   # t to ta1 - talon to tableau
-          legality = is_legal(string_builder)
+          legality = self.is_legal(string_builder)
           if (legality == True):
             possible_actions.append(string_builder)
           for j in range(7):
             if (i!=j):
               string_builder = "ta" + str(i) + " to ta" + str(j)   # ta1 to ta2 - tabelau to tableau
-              legality = is_legal(string_builder);
+              legality = self.is_legal(string_builder);
               if (legality == True):
                 possible_actions.append(string_builder)
           for j in range(4):
-            string_builder = "ta"+str(i)+"to f"+str(j)    # ta1 to f1 - tableau to foundation
-            legality = is_legal(string_builder)
+            string_builder = "ta"+str(i)+" to f"+str(j)    # ta1 to f1 - tableau to foundation
+            legality = self.is_legal(string_builder)
             if (legality == True):
               possible_actions.append(string_builder)
             string_builder = "t to f"+str(j)     # t to f1 - talon to foundation
-            legality = is_legal(string_builder)
+            legality = self.is_legal(string_builder)
             if (legality == True):
               possible_actions.append(string_builder)
 
-    return chain.from_iterable([func(self) for func in possible_actions])  #generate actions and flatten lists   # known as single line functions for lists REFERENCE
-
+    # return list(chain.from_iterable([func(self) for func in possible_actions]))  #generate actions and flatten lists   # known as single line functions for lists REFERENCE
+    return possible_actions
 
 
 
@@ -547,7 +551,10 @@ def main():
   state = game_states()
   play = 1
   while(play == 1):
-    play = a.instructions()
+    # play = a.instructions()
+    array = a.get_actions()
+    print(str(array) + "\n" + str(len(array)))
+    pdb.set_trace()
     state.add_state(a)
 
 main()
