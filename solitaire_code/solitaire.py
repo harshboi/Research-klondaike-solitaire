@@ -406,11 +406,12 @@ class game:
       # ADD FUNCTIONALITY FOR ALERTING GAME OVER
 
   def is_legal(self, action):
-    #talon to tableau
-    pdb.set_trace()
-    if((action.find("t to") != -1) and (action.find("ta") != -1)):  #talon to tableua
+    # pdb.set_trace()
+
+    # talon to tableau ex: t to ta1
+    if((action.find("t to") != -1) and (action.find("ta") != -1) and len(self.talon)>0):  #talon to tableua
       card = self.talon[-1]
-      tableau_num = action[7]   # ex: t to ta6
+      tableau_num = int(action[7])   # ex: t to ta6
       length = self.tableau[tableau_num]                          #tableau_num denotes the tableau to insert cards in
       top_tableau_card = self.tableau[tableau_num][-1]
       if(top_tableau_card[1] == card[1]):
@@ -427,16 +428,53 @@ class game:
       else:
         # print("Operation not possible")             #Removes the card
         return False
+    
+    # stock to talon ex: s to t
+    elif ((action.find("s to t")) != -1):
+      if(len(self.stock) >= 3):
+        return True
+      else: return False
 
-    elif (action.find("fl")):
-      return True;
+    # stock to tableau ex: s to ta1
+    elif ((action.find("s to") != -1) and (action.find("ta") != -1) and len(self.stock)>0):      # ex: s to ta1
+      card = self.stock[-1]
+      tableau_num = int(action[7])   # ex: s to ta6
+      length = self.tableau[tableau_num]                          #tableau_num denotes the tableau to insert cards in
+      top_tableau_card = self.tableau[tableau_num][-1]
+      if(top_tableau_card[1] == card[1]):
+        return False
+      elif(top_tableau_card[2] <= card[2]):
+        return False
+      elif((top_tableau_card[1] != card[1]) and (top_tableau_card[2]-1 == card[2])):
+        return True
+      else:
+        return False
 
-    # talbeau to foundation
-    elif (action.find("to f") and action.find("ta")):
+    # stock to foundation: s to f1
+    elif ((action.find("s to") != -1) and (action.find("f") != -1) and len(self.stock)>0):
+      pos = int (action[-1]);
+      card = self.stock[-1]
+      if(len(self.foundation[pos]) == 0):
+        if(card[2] == 1):
+          return True;
+          # self.foundation[pos].append(card)
+          # self.talon.pop(-1)
+          # self.scoring(2)
+        else:
+          return False
+      elif((self.foundation[pos][-1][2] == card[2]-1) and (self.foundation[pos][-1][0] == card[0])):           #CHANGED, MAYBE ERROR
+        return False;
+
+    # talon to stock ex: t to s
+    elif ((action.find("t to") != -1) and (action.find("s") != -1) and len(self.stock) == 0):
+      return True
+
+    # talbeau to foundation ex: ta3 to f1
+    elif ((action.find("to f") != -1) and (action.find("ta") != -1) and len(self.tableau[int(action[2])])>0):
       if (action.find("to f")):  # ex: ta1 to f3
-        pos = action[8]
-        tableau_num = action[2]
-        card = self.talon[-1]
+        pos = int(action[8])
+        tableau_num = int(action[2])
+        card = self.tableau[tableau_num][-1]  # ERROR: CHANGE FROM TALON TO TABLEAU, TALON HAS NO USE HERE
       if(len(self.foundation[pos]) == 0):
         if(card[2] == 1):                   # Checks if card is an ACE
           return True
@@ -449,8 +487,8 @@ class game:
         # print("Operation not possible\n\n")
         return False
     
-    # talon to foundation
-    elif(action.find("to f") and action.find("t")):   #t to f3
+    # talon to foundation ex: t to f1
+    elif((action.find("to f") != -1) and (action.find("t") != -1) and len(self.talon) > 0):   #t to f3
       pos = int (action[-1]);
       card = self.talon[-1]
       if(len(self.foundation[pos]) == 0):
@@ -466,9 +504,13 @@ class game:
         # self.foundation[pos].append(card)
         # self.talon.pop(-1)
         # self.scoring(2)
-    else: #ex: ta2 to ta3
-      final_tableau = action[9]
-      initial_tableau = action[2]
+    
+    # tableau to tableau ex: ta1 to ta3
+    elif((action.find("ta") == 0) and (action.find("to ta") != -1)): #ex: ta2 to ta3
+      final_tableau = int(action[9])
+      initial_tableau = int(action[2])
+      if(len(self.tableau[initial_tableau])<=0 and len(self.tableau[final_tableau])<=0):
+        return False
       if((self.tableau[initial_tableau][-1][1] != self.tableau[final_tableau][-1][1]) and (self.tableau[initial_tableau][-1][2] == self.tableau[final_tableau][-1][2]-1)):
         # self.tableau[final_tableau].append(self.tableau[initial_tableau][-1])              #Adds the card to the tableau
         # self.tableau[initial_tableau].pop(-1)
@@ -477,6 +519,9 @@ class game:
       else:
         # print("Operation not possible")             #Removes the card
         return False
+    
+    else:
+      return False
 
 
   def return_score (self):
@@ -503,31 +548,37 @@ class game:
 
   def get_actions(self):
     possible_actions = []
-    pdb.set_trace()
-    for i in range(7):
-      if(len(self.tableau[i]) > 0):
-        string_builder = "fl"               #fl - flip the talon
-        possible_actions.append(string_builder)
-        for i in range(7):    # 7 is the number of tableaus
-          string_builder = "t to ta" + str(i)   # t to ta1 - talon to tableau
+    # pdb.set_trace()
+    # string_builder = "fl"               #fl - flip the talon
+    string_builder = "s to t"
+    legality = self.is_legal(string_builder)
+    if (legality == True):
+      possible_actions.append(string_builder)
+    string_builder = "t to s"
+    legality = self.is_legal(string_builder)
+    if (legality == True):
+      possible_actions.append(string_builder)
+    # if(len(self.tableau) > 0):
+      for i in range(7):    # 7 is the number of tableaus
+        string_builder = "t to ta" + str(i)   # t to ta1 - talon to tableau
+        legality = self.is_legal(string_builder)
+        if (legality == True):
+          possible_actions.append(string_builder)
+        for j in range(7):
+          if (i!=j):
+            string_builder = "ta" + str(i) + " to ta" + str(j)   # ta1 to ta2 - tabelau to tableau
+            legality = self.is_legal(string_builder);
+            if (legality == True):
+              possible_actions.append(string_builder)
+        for j in range(4):
+          string_builder = "ta"+str(i)+" to f"+str(j)    # ta1 to f1 - tableau to foundation
           legality = self.is_legal(string_builder)
           if (legality == True):
             possible_actions.append(string_builder)
-          for j in range(7):
-            if (i!=j):
-              string_builder = "ta" + str(i) + " to ta" + str(j)   # ta1 to ta2 - tabelau to tableau
-              legality = self.is_legal(string_builder);
-              if (legality == True):
-                possible_actions.append(string_builder)
-          for j in range(4):
-            string_builder = "ta"+str(i)+" to f"+str(j)    # ta1 to f1 - tableau to foundation
-            legality = self.is_legal(string_builder)
-            if (legality == True):
-              possible_actions.append(string_builder)
-            string_builder = "t to f"+str(j)     # t to f1 - talon to foundation
-            legality = self.is_legal(string_builder)
-            if (legality == True):
-              possible_actions.append(string_builder)
+          string_builder = "t to f"+str(j)     # t to f1 - talon to foundation
+          legality = self.is_legal(string_builder)
+          if (legality == True):
+            possible_actions.append(string_builder)
 
     # return list(chain.from_iterable([func(self) for func in possible_actions]))  #generate actions and flatten lists   # known as single line functions for lists REFERENCE
     return possible_actions
@@ -554,7 +605,7 @@ def main():
     # play = a.instructions()
     array = a.get_actions()
     print(str(array) + "\n" + str(len(array)))
-    pdb.set_trace()
+    # pdb.set_trace()
     state.add_state(a)
 
 main()
