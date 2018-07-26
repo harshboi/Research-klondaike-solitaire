@@ -430,7 +430,7 @@ class game:
         return False
     
     # stock to talon ex: s to t
-    elif ((action.find("s to t")) != -1):
+    elif ((action.find("s to t")) != -1 and action.find("ta") == -1):
       if(len(self.stock) >= 3):
         return True
       else: return False
@@ -443,7 +443,7 @@ class game:
       top_tableau_card = self.tableau[tableau_num][-1]
       if(top_tableau_card[1] == card[1]):
         return False
-      elif(top_tableau_card[2] <= card[2]):
+      elif(top_tableau_card[2] >= card[2]):
         return False
       elif((top_tableau_card[1] != card[1]) and (top_tableau_card[2]-1 == card[2])):
         return True
@@ -559,26 +559,26 @@ class game:
     if (legality == True):
       possible_actions.append(string_builder)
     # if(len(self.tableau) > 0):
-      for i in range(7):    # 7 is the number of tableaus
-        string_builder = "t to ta" + str(i)   # t to ta1 - talon to tableau
+    for i in range(7):    # 7 is the number of tableaus
+      string_builder = "s to ta" + str(i)   # t to ta1 - talon to tableau
+      legality = self.is_legal(string_builder)
+      if (legality == True):
+        possible_actions.append(string_builder)
+      for j in range(7):
+        if (i!=j):
+          string_builder = "ta" + str(i) + " to ta" + str(j)   # ta1 to ta2 - tabelau to tableau
+          legality = self.is_legal(string_builder);
+          if (legality == True):
+            possible_actions.append(string_builder)
+      for j in range(4):
+        string_builder = "ta"+str(i)+" to f"+str(j)    # ta1 to f1 - tableau to foundation
         legality = self.is_legal(string_builder)
         if (legality == True):
           possible_actions.append(string_builder)
-        for j in range(7):
-          if (i!=j):
-            string_builder = "ta" + str(i) + " to ta" + str(j)   # ta1 to ta2 - tabelau to tableau
-            legality = self.is_legal(string_builder);
-            if (legality == True):
-              possible_actions.append(string_builder)
-        for j in range(4):
-          string_builder = "ta"+str(i)+" to f"+str(j)    # ta1 to f1 - tableau to foundation
-          legality = self.is_legal(string_builder)
-          if (legality == True):
-            possible_actions.append(string_builder)
-          string_builder = "t to f"+str(j)     # t to f1 - talon to foundation
-          legality = self.is_legal(string_builder)
-          if (legality == True):
-            possible_actions.append(string_builder)
+        string_builder = "s to f"+str(j)     # t to f1 - talon to foundation
+        legality = self.is_legal(string_builder)
+        if (legality == True):
+          possible_actions.append(string_builder)
 
     # return list(chain.from_iterable([func(self) for func in possible_actions]))  #generate actions and flatten lists   # known as single line functions for lists REFERENCE
     return possible_actions
