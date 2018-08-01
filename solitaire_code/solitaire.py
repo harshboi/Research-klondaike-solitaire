@@ -5,6 +5,9 @@ from itertools import chain
 
 global str
 
+  # Add scoring for tableau to tableau (5 points)
+  # Change global return types for scoring function -- Dont change the score internally, have the get_action function in Alex's
+  # code handle it
   # Integrate with Alex's codes
 
 class game:
@@ -139,7 +142,7 @@ class game:
     while(len(self.talon) > 1):
       popped = self.talon.pop(-1)
       self.stock.append(popped)
-
+    return (0)
 
   #########################################################################################################
   # card_color: what is the color of the card to check for alternating colors
@@ -239,6 +242,7 @@ class game:
     elif(len(self.stock)>0 and len(self.stock)<3):
       for i in range(len(self.stock)):
         self.talon.append(self.stock.pop())
+      return 0;
 
     elif(len(self.stock) == 0):
       if(self.stock_resets == 3):
@@ -246,6 +250,11 @@ class game:
       self.stock_resets += 1;
       for i in range(len(self.talon)):
         self.stock.append(self.talon.pop())
+      if (self.stock_resets >= 3):
+        self.stock_resets = 0
+        return(self.return_scoring(3))
+      else:
+        return(0)
 
   #########################################################################################################
   # move types:
@@ -556,10 +565,6 @@ class game:
       possible_actions.append(string_builder)
     # if(len(self.tableau) > 0):
     for i in range(7):    # 7 is the number of tableaus
-      string_builder = "s to ta" + str(i)   # s to ta1 - talon to tableau
-      legality = self.is_legal(string_builder)
-      if (legality == True):
-        possible_actions.append(string_builder)
       string_builder = "t to ta" + str(i)   # t to ta1 - talon to tableau
       legality = self.is_legal(string_builder)
       if (legality == True):
@@ -579,20 +584,18 @@ class game:
         legality = self.is_legal(string_builder)
         if (legality == True):
           possible_actions.append(string_builder)
-        string_builder = "s to f"+str(j)     # s to f1 - talon to foundation
-        legality = self.is_legal(string_builder)
-        if (legality == True):
-          possible_actions.append(string_builder)
 
     # return list(chain.from_iterable([func(self) for func in possible_actions]))  #generate actions and flatten lists   # known as single line functions for lists REFERENCE
     pdb.set_trace()
     return possible_actions
 
   def take_action (self, action):
-    if(action.find("s to t") != -1):
-      self.flip_stock;
-      return(self.return_scoring())
-      
+    if (action.find("s to t") != -1):
+      reward = self.flip_stock;
+      return (reward)
+    elif (action.find("t to s") != -1):
+      reward = self.talon_to_stock
+      return (reward)
 
 
 
