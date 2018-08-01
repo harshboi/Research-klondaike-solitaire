@@ -5,11 +5,7 @@ from itertools import chain
 
 global str
 
-  # CHANGE architecture from (1-7) to (0-6)
-  # create is_legal function and add all states i.e. actions from stock to tableau (like all 7 actions that can be possible (call is_legal and check whatst possible))
-  # Testing for the foundation to tableau function
   # Integrate with Alex's codes
-  # Find where the return in run_pull in recursive_bandit_agent.py in frameworks/agents/PyPlan
 
 class game:
   def __init__(self):
@@ -167,7 +163,7 @@ class game:
     elif((top_tableau_card[1] != card[1]) and (top_tableau_card[2]-1 == card[2])):
       self.tableau[tableau_num].append(card)              #Adds the card to the tableau
       self.talon.pop(-1)
-      self.scoring(1)
+      # self.scoring(1)
     else:
       print("Operation not possible")             #Removes the card
 
@@ -200,13 +196,13 @@ class game:
       if(card[2] == 1):                           # Checks if card is an ACE
         self.foundation[pos].append(card)
         self.tableau[card_pos].pop(-1)
-        self.scoring(2)
+        # self.scoring(2)
       else:
         print("Operation not possible\n\n")
     elif((self.foundation[pos][-1][2] == card[2]-1) and (self.foundation[pos][-1][0]) == card[0]):
       self.foundation[pos].append(card)
       self.tableau[card_pos].pop(-1)
-      self.scoring(2)
+      # self.scoring(2)
     else:
       print("Operation not possible\n\n")
 
@@ -220,13 +216,13 @@ class game:
       if(card[2] == 1):
         self.foundation[pos].append(card)
         self.talon.pop(-1)
-        self.scoring(2)
+        # self.scoring(2)
       else:
         print("Operation not possible\n\n")
     elif((self.foundation[pos][-1][2] == card[2]-1) and (self.foundation[pos][-1][0] == card[0])):           #CHANGED, MAYBE ERROR
       self.foundation[pos].append(card)
       self.talon.pop(-1)
-      self.scoring(2)
+      # self.scoring(2)
 
   #########################################################################################################
   #Parameters:-
@@ -560,7 +556,11 @@ class game:
       possible_actions.append(string_builder)
     # if(len(self.tableau) > 0):
     for i in range(7):    # 7 is the number of tableaus
-      string_builder = "s to ta" + str(i)   # t to ta1 - talon to tableau
+      string_builder = "s to ta" + str(i)   # s to ta1 - talon to tableau
+      legality = self.is_legal(string_builder)
+      if (legality == True):
+        possible_actions.append(string_builder)
+      string_builder = "t to ta" + str(i)   # t to ta1 - talon to tableau
       legality = self.is_legal(string_builder)
       if (legality == True):
         possible_actions.append(string_builder)
@@ -575,16 +575,24 @@ class game:
         legality = self.is_legal(string_builder)
         if (legality == True):
           possible_actions.append(string_builder)
-        string_builder = "s to f"+str(j)     # t to f1 - talon to foundation
+        string_builder = "t to f"+str(j)     # t to f1 - talon to foundation
+        legality = self.is_legal(string_builder)
+        if (legality == True):
+          possible_actions.append(string_builder)
+        string_builder = "s to f"+str(j)     # s to f1 - talon to foundation
         legality = self.is_legal(string_builder)
         if (legality == True):
           possible_actions.append(string_builder)
 
     # return list(chain.from_iterable([func(self) for func in possible_actions]))  #generate actions and flatten lists   # known as single line functions for lists REFERENCE
+    pdb.set_trace()
     return possible_actions
 
-
-
+  def take_action (self, action):
+    if(action.find("s to t") != -1):
+      self.flip_stock;
+      return(self.return_scoring())
+      
 
 
 
@@ -611,7 +619,7 @@ def main():
 main()
 
 """
-def take_action(self, action):         # What is action    ERROR
+def take_action(self, action):
         # reward = self.current_state.move_piece(action)
     reward = self.current_state.
         # IMPLEMENT a call that actually moves stuff
