@@ -9,7 +9,7 @@ import pdb
 
 class SolitaireState(abstract_state.AbstractState):
     env_name = "solitaire"
-    num_players = 2
+    num_players = 1
 
     def __init__(self):
         self.current_state = solitaire.game()
@@ -30,7 +30,7 @@ class SolitaireState(abstract_state.AbstractState):
         return new_state
 
     def set(self, state):
-        self.current_state = state.current_state
+        self.current_state = state.current_state        # ADD
         # self.current_player = state.current_player
         self.game_outcome = state.game_outcome
 
@@ -70,51 +70,6 @@ class SolitaireState(abstract_state.AbstractState):
 
     def is_terminal(self):
         return self.game_outcome is not None
-
-# NEXT 2 FUNCTIONS MAY BE REDUNDANT
-
-    def render(self):
-        """Render the game board, creating a tkinter window if needed."""
-        if not hasattr(self, 'screen'):
-            pygame.init()
-            self.width, self.height = 360, 360
-            self.tile_size = int(self.width / self.current_state.width)  # assume width == height
-            self.screen = pygame.display.set_mode((self.width, self.height))
-
-            pygame.display.set_caption(self.env_name)
-            if len(self.resources) == 0:
-                self.load_resources("/home/darkice/AI/packages/PyPlan/dealers/simulators/chesscode/sprites")
-            icon = pygame.transform.scale(self.resources['kwhite'], (32, 32))
-            pygame.display.set_icon(icon)
-
-        pygame.event.clear()  # allows for pausing and debugging without losing rendering capability
-
-        self.screen.blit(self.resources['background'], self.resources['background'].get_rect())
-        for color in ('white', 'black'):  # recreate piece sets
-            for piece in self.current_state.pieces[color]:
-                # Load the image, scale it, and put it on the correct tile
-                name = piece.abbreviation + piece.color
-                image = self.resources[name]
-
-                piece_rect = image.get_rect()
-                piece_rect.move_ip(self.tile_size * piece.position[1],
-                                   self.tile_size * piece.position[0])  # move in-place
-
-                # Draw the piece
-                self.screen.blit(image, piece_rect)
-
-        pygame.display.update()  # update visible display
-
-    def load_resources(self, path):
-        """Load the requisite images for chess rendering from the given path."""
-        image = pygame.image.load_basic(os.path.join(path, "board.bmp"))
-        self.resources['background'] = pygame.transform.scale(image, (self.width, self.height))
-
-        for abbreviation in self.current_state.piece_values.keys():  # load each piece
-            for color in ('white', 'black'):  # load each color variant
-                name = abbreviation + color  # construct image name
-                image = pygame.image.load_extended(os.path.join(path, name + '.png'))
-                self.resources[name] = pygame.transform.scale(image, (self.tile_size, self.tile_size))
 
 
     def __eq__(self, other):
