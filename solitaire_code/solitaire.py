@@ -2,6 +2,7 @@ import random
 import math
 import pdb
 from itertools import chain
+import copy
 
 global str
 
@@ -23,10 +24,9 @@ class game:
       self.tableau = [[],[],[],[],[],[],[]]       # 7 cards laid out aside eachother
       self.shuffle()
       self.score = 0
-      self.stock_resets = 0;
-      self.last_action = None;
-      self.cached_actions = []; # should be updated by an outside simulator
+      self.stock_resets = 0
       self.last_action = None
+      self.cached_actions = [] # should be updated by an outside simulator
 
   def shuffle(self):
     n = []
@@ -595,23 +595,20 @@ class game:
       return (reward)
 
   def __copy__(self):
-    board = Board()
-    for row in range(board.height):  # copy each piece
-      for col in range(board.width):
-        piece = self.get_piece((row, col))
-        if piece != ' ':  # Basically if not empty use defined copy constructor for each piece (from <piece>.py file)
-          new_piece = piece.copy() # should be easier for me as not piece based
-          board.set_piece((row, col), new_piece)
-          board.pieces[new_piece.color][new_piece] = new_piece
-          if isinstance(new_piece, pieces.King):
-            board.kings[new_piece.color] = new_piece
-        else:
-          board.set_piece((row, col), piece)
+    Game = game()
+    Game.stock = copy.deepcopy(self.stock)
+    Game.foundation = copy.deepcopy(self.foundation)
+    Game.talon = copy.deepcopy(self.talon)
+    Game.tableau = copy.deepcopy(self.tableau)
+    Game.score = self.score
+    Game.stock_resets = self.stock_resets
+    Game.cached_actions = copy.deepcopy(self.cached_actions)
+    Game.last_action = copy.deepcopy(self.last_action)
+    # game.
+    return Game
+    # board.cached_actions, board.last_action = self.cached_actions, self.last_action
+    # board.verify_not_checked, board.allow_king_capture = self.verify_not_checked, self.allow_king_capture
 
-    board.cached_actions, board.last_action = self.cached_actions, self.last_action
-    board.verify_not_checked, board.allow_king_capture = self.verify_not_checked, self.allow_king_capture
-
-    return board
 
 class game_states(game):
   def __init__(self):
@@ -632,8 +629,7 @@ def main():
     # pdb.set_trace()
     state.add_state(a)
 
-main()
-
+# main()
 """
 def take_action(self, action):
         # reward = self.current_state.move_piece(action)

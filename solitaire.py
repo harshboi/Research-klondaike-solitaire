@@ -18,7 +18,7 @@ class SolitaireState(abstract_state.AbstractState):
 
         self.resources = {}  # sprites for pygame
 
-    def reinitialize(self):
+    def reinitialize(self):  # called after one entire game has been played
         self.current_state = solitaire.game()
         self.current_state.shuffle()  # set up initial piece configuration
         self.current_player = 0
