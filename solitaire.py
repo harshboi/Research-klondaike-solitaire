@@ -3,7 +3,7 @@ import numpy as np
 import os
 import pygame
 from abstract import abstract_state
-from solitaire_code import solitaire
+from solitairecode import solitaire
 import pdb
 
 
@@ -34,22 +34,28 @@ class SolitaireState(abstract_state.AbstractState):
         # self.current_player = state.current_player
         self.game_outcome = state.game_outcome
 
-    def take_action(self, action):         # What is action    ERROR
-        reward = self.current_state.move_piece()
-        pdb.set_trace()
-        self.current_state.last_action, previous_player = action, self.current_player   # Setup functions for last_action  ERROR  // Global CHANGE of previous_player to previous_action
-        self.b_player()                # Can be found in abstract_state.py
+    def take_action(self, action):
+        # reward = self.current_state.move_piece(action)
+        reward = self.current_state.take_action(action)
+        # IMPLEMENT a call that actually moves stuff
+        self.current_state.last_action = action   # Setup functions for last_action  ERROR  // Global CHANGE of previous_player to previous_action
+        # self.current_state.last_action, previous_state = action, self.current_player   # Setup functions for last_action  ERROR  // Global CHANGE of previous_player to previous_action
+        # self.update_current_player()                # Can be found in abstract_state.py  # not needed as solitaire is a single player game
 
         self.current_state.cached_actions = []
         self.get_actions()  # Line 53
-        if len(self.current_state.cached_actions) == 0:
-            self.game_outcome = previous_player if self.current_state.is_checked(self.get_current_color()) else 'draw'
-            if self.game_outcome != 'draw':
-                reward = self.current_state.piece_values['k']
+        fetch_reward = self.get_reward(action)
+        if (len(self.current_state.cached_actions) == 0):
+            self.game_outcome = 'win' if self.current_state.return_game_state else 'in progress'
+            # if self.game_outcome == 'win':
+            # print("Game over")
+        return reward
+        # if self.current_state.return_game_state == 1:
+            # self.game_outcome = previous_player if self.current_state.is_checked(self.get_current_color()) else 'draw'
 
         # The current player gets the opposite of the reward (e.g. losing a piece)
-        return np.array([-1 * reward if player_idx == self.current_player else reward
-                         for player_idx in range(self.num_players)])
+        # return np.array([-1 * reward if player_idx == self.current_player else reward
+                        #  for player_idx in range(self.num_players)])
 
     def get_actions(self):
         if len(self.current_state.cached_actions) == 0:
