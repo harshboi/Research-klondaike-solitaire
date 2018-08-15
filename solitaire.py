@@ -2,8 +2,10 @@ import copy
 import numpy as np
 import os
 import pygame
+import sys
+sys.path.append('../')
 from abstract import abstract_state
-from solitairecode import solitaire
+from dealers.simulators.solitairecode import solitaire
 import pdb
 
 
@@ -44,7 +46,7 @@ class SolitaireState(abstract_state.AbstractState):
 
         self.current_state.cached_actions = []
         self.get_actions()  # Line 53
-        fetch_reward = self.get_reward(action)
+        # fetch_reward = self.current_state.get_reward(action)
         if (len(self.current_state.cached_actions) == 0):
             self.game_outcome = 'win' if self.current_state.return_game_state else 'in progress'
             # if self.game_outcome == 'win':
