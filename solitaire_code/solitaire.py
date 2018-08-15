@@ -6,7 +6,11 @@ import copy
 
 global str
 
-  # Create score/reward return. Also change for tablea_tableau
+
+  # Line 427 error
+    #   File "../dealers/simulators/solitairecode/solitaire.py", line 427, in is_legal
+    #     top_tableau_card = self.tableau[tableau_num][-1]
+    # IndexError: list index out of range
   # code handle it
   # Integrate with Alex's codes
 
@@ -527,8 +531,7 @@ class game:
 
   def is_terminal(self):
     win_loose = self.win();
-    total = len(self.foundation[0]) + len(self.foundation[1]) + len(self.foundation[2]) + len(self.foundation[3])
-    if(total == 52):
+    if(win_loose == 0):
       return 1
     else: return 0
 
@@ -630,10 +633,13 @@ def main():
     state.add_state(a)
 
 # main()
+"""
 def take_action(self, action):
         # reward = self.current_state.move_piece(action)
-    reward = self.current_state.take_action(action)
+    reward = self.current_state.
         # IMPLEMENT a call that actually moves stuff
+
+        pdb.set_trace()
         self.current_state.last_action = action   # Setup functions for last_action  ERROR  // Global CHANGE of previous_player to previous_action
         # self.current_state.last_action, previous_state = action, self.current_player   # Setup functions for last_action  ERROR  // Global CHANGE of previous_player to previous_action
         # self.update_current_player()                # Can be found in abstract_state.py  # not needed as solitaire is a single player game
@@ -652,6 +658,7 @@ def take_action(self, action):
         # The current player gets the opposite of the reward (e.g. losing a piece)
         return np.array([-1 * reward if player_idx == self.current_player else reward
                          for player_idx in range(self.num_players)])
+"""
 
 #Files to investigate
 
