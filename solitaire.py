@@ -14,6 +14,7 @@ class SolitaireState(abstract_state.AbstractState):
     num_players = 1
 
     def __init__(self):
+        pdb.set_trace()
         self.current_state = solitaire.game()
         self.current_state.shuffle()
         self.game_outcome = None  # 0 - player 1 won, 'draw' - draw, 1 - player 2 won, None - game not over
@@ -51,6 +52,7 @@ class SolitaireState(abstract_state.AbstractState):
             self.game_outcome = 'win' if self.current_state.return_game_state else 'in progress'
             # if self.game_outcome == 'win':
             # print("Game over")
+        pdb.set_trace()
         return reward
         # if self.current_state.return_game_state == 1:
             # self.game_outcome = previous_player if self.current_state.is_checked(self.get_current_color()) else 'draw'
@@ -68,7 +70,7 @@ class SolitaireState(abstract_state.AbstractState):
         # return 'white' if self.current_player == 0 else 'black'
 
     def get_value_bounds(self):
-        pdb.set_trace()
+        # pdb.set_trace()
         king_value = self.current_state.piece_values['k']  # defeat / victory
         queen_value = self.current_state.piece_values['q']
         return {'defeat': -1 * king_value, 'victory': king_value,
