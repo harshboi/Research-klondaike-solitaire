@@ -16,16 +16,19 @@ class SolitaireState(abstract_state.AbstractState):
     def __init__(self):
         pdb.set_trace()
         self.current_state = solitaire.game()
-        self.current_state.shuffle()
+        # self.current_state.shuffle()
         self.game_outcome = None  # 0 - player 1 won, 'draw' - draw, 1 - player 2 won, None - game not over
-
+        self.helperr = []
         self.resources = {}  # sprites for pygame
+        self.f = open("../../../actions.txt", "a")
+        self.tableau = open("../../../tableau.txt", "a")
 
     def reinitialize(self):  # called after one entire game has been played
         self.current_state = solitaire.game()
         self.current_state.shuffle()  # set up initial piece configuration
         self.current_player = 0
         self.game_outcome = None
+        pdb.set_trace()
 
     def clone(self):            # Internal Python3.6 function
         new_state = copy.copy(self)
@@ -52,7 +55,17 @@ class SolitaireState(abstract_state.AbstractState):
             self.game_outcome = 'win' if self.current_state.return_game_state else 'in progress'
             # if self.game_outcome == 'win':
             # print("Game over")
-        pdb.set_trace()
+        # pdb.set_trace()
+        # self.helperr.append(action)
+        # self.f.write(action)
+        # self.f.write("\n")
+        # self.tableau.write(str(self.current_state.tableau))
+        # self.tableau.write("\n")
+        # print reward  
+        # print (reward)
+        # if(type(reward) != )
+        if(str(type(reward)) != "<class 'int'>"):
+            print (str(type(reward)))
         return reward
         # if self.current_state.return_game_state == 1:
             # self.game_outcome = previous_player if self.current_state.is_checked(self.get_current_color()) else 'draw'

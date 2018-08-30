@@ -6,6 +6,22 @@ import copy
 
 global str
 
+
+# Errors below have all been fixed
+#   File "../agents/frameworks/recursive_bandit_framework.py", line 55, in estimateV
+#     arm_data = self.run_pull(state, bandit, depth)
+#   File "../agents/frameworks/recursive_bandit_framework.py", line 75, in run_pull
+#     future_reward = self.estimateV(current_state, depth - 1)[0]  # [0] references the q_values for best action
+#   File "../agents/frameworks/recursive_bandit_framework.py", line 34, in estimateV
+#     return self.evaluation.evaluate(state), None  # no more depth, so default to the evaluation fn
+#   File "../agents/evaluations/rollout_evaluation.py", line 19, in evaluate
+#     total_rewards += self.run_rollout(state)
+#   File "../agents/evaluations/rollout_evaluation.py", line 32, in run_rollout
+#     rewards += sim_state.take_action(action)
+# TypeError: ufunc 'add' output (typecode 'O') could not be coerced to provided output parameter (typecode 'd') according to the casting rule ''same_kind''
+# 100% (1 of 1) |##########################| Elapsed Time: 0:00:00 Time:  0:00:00
+
+
   # len(self.stock) = 45 ?? should be 24
   # commented line 194 in native_dealer.py
   # Line 427 error
@@ -82,7 +98,7 @@ class game:
 
 
   def create_stock(self):
-    self.stock = []
+    # self.stock = []
     for i in range(0,24):                           # CHANGE TO WHILE LOOP, perform testing (Mostly works)
       #pdb.set_trace()
       x = random.randint(0,len(self.cards)-1)
@@ -164,7 +180,11 @@ class game:
 
     card = self.talon[-1]
     # tableau_num -= 1    # architecture change (0-6)
-    length = self.tableau[tableau_num]                          #tableau_num denotes the tableau to insert cards in
+    if (len(self.tableau[tableau_num]) == 0):
+      if(card[2] == 13):
+        self.tableau[tableau_num].append(card)              #Adds the card to the tableau
+        self.talon.pop(-1)
+
     top_tableau_card = self.tableau[tableau_num][-1]
 
     if(top_tableau_card[1] == card[1]):
@@ -186,17 +206,23 @@ class game:
   def tableau_to_tableau (self, initial_tableau, final_tableau):
     # initial_tableau -=1
     # final_tableau -= 1
-    if((self.tableau[initial_tableau][-1][1] != self.tableau[final_tableau][-1][1]) and (self.tableau[initial_tableau][-1][2] == self.tableau[final_tableau][-1][2]-1)):
+    if (len(self.tableau[final_tableau]) == 0):
+      if (self.tableau[initial_tableau][-1][2] == 13):
+        self.tableau[final_tableau].append(self.tableau[initial_tableau][-1])              #Adds the card to the tableau
+        self.tableau[initial_tableau].pop(-1)
+        return (self.scoring(1))  # Bane of my existence - forgetting this line took me around 6 hours to debug
+    elif((self.tableau[initial_tableau][-1][1] != self.tableau[final_tableau][-1][1]) and (self.tableau[initial_tableau][-1][2] == self.tableau[final_tableau][-1][2]-1)):
       self.tableau[final_tableau].append(self.tableau[initial_tableau][-1])              #Adds the card to the tableau
       self.tableau[initial_tableau].pop(-1)
       # self.scoring(1)        // No scores given for moving a card with the tableau
       return (self.return_scoring(1))
     else:
       print("Operation not possible")             #Removes the card
-
+      print(self.tableau[initial_tableau][-1])
+      print(self.tableau[final_tableau][-1])
+      pdb.set_trace()
       self.print_talon()
       self.print_tableua()
-
 
   #########################################################################################################
   # card_pos: tableau number (automatically choses the top most card in the selected tableau)
@@ -468,10 +494,10 @@ class game:
 
       # talbeau to foundation ex: ta3 to f1
       elif ((action.find("to f") != -1) and (action.find("ta") != -1) and len(self.tableau[int(action[2])])>0):
-        if (action.find("to f")):  # ex: ta1 to f3
-          pos = int(action[8])
-          tableau_num = int(action[2])
-          card = self.tableau[tableau_num][-1]  # ERROR: CHANGE FROM TALON TO TABLEAU, TALON HAS NO USE HERE
+        # if (action.find("to f")):  # ex: ta1 to f3
+        pos = int(action[8])
+        tableau_num = int(action[2])
+        card = self.tableau[tableau_num][-1]  # ERROR: CHANGE FROM TALON TO TABLEAU, TALON HAS NO USE HERE
         if(len(self.foundation[pos]) == 0):
           if(card[2] == 1):                   # Checks if card is an ACE
             return True
@@ -503,22 +529,17 @@ class game:
           # self.scoring(2)
       
       # tableau to tableau ex: ta1 to ta3
-      elif((action.find("ta") == 0) and (action.find("to ta") != -1)): #ex: ta2 to ta3
+      elif((action.find("ta") == 0) and (action.find("to ta") != -1) and len(self.tableau[int(action[2])])>0): #ex: ta2 to ta3
         final_tableau = int(action[9])
         initial_tableau = int(action[2])
-        if(len(self.tableau[initial_tableau]) == 0):
-          return False
         if (len(self.tableau[final_tableau]) == 0):
-          if(self.tablea[initial_tableau][-1][2] == 13):
+          if(self.tableau[initial_tableau][-1][2] == 13):
             return True
           else: return False
           # else: return False
         if(len(self.tableau[initial_tableau])<=0 and len(self.tableau[final_tableau])<=0):
           return False
         if((self.tableau[initial_tableau][-1][1] != self.tableau[final_tableau][-1][1]) and (self.tableau[initial_tableau][-1][2] == self.tableau[final_tableau][-1][2]-1)):
-          # self.tableau[final_tableau].append(self.tableau[initial_tableau][-1])              #Adds the card to the tableau
-          # self.tableau[initial_tableau].pop(-1)
-          # self.scoring(1)        // No scores given for moving a card with the tableau
           return True
         else:
           # print("Operation not possible")             #Removes the card
@@ -526,8 +547,8 @@ class game:
       
       else:
         return False
-    except:
-    # except AssertionError as error:
+    # except:
+    except AssertionError as error:
       print (action)
       pdb.set_trace()
       # print (error)
