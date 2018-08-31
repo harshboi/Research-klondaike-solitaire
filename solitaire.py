@@ -10,7 +10,7 @@ import pdb
 
 
 class SolitaireState(abstract_state.AbstractState):
-    env_name = "solitaire"
+    env_name = "Solitaire"
     num_players = 1
 
     def __init__(self):
@@ -25,7 +25,7 @@ class SolitaireState(abstract_state.AbstractState):
 
     def reinitialize(self):  # called after one entire game has been played
         self.current_state = solitaire.game()
-        self.current_state.shuffle()  # set up initial piece configuration
+        # self.current_state.shuffle()  # set up initial piece configuration
         self.current_player = 0
         self.game_outcome = None
         pdb.set_trace()
@@ -64,9 +64,10 @@ class SolitaireState(abstract_state.AbstractState):
         # print reward  
         # print (reward)
         # if(type(reward) != )
+        self.helperr.append(self.current_state.foundation)
         if(str(type(reward)) != "<class 'int'>"):
             print (str(type(reward)))
-        return reward
+        return np.array([reward])
         # if self.current_state.return_game_state == 1:
             # self.game_outcome = previous_player if self.current_state.is_checked(self.get_current_color()) else 'draw'
 

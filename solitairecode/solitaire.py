@@ -6,7 +6,11 @@ import copy
 
 global str
 
-
+# Memoize in tableau scoring based moves -- Pending
+# Fixed reinitialize from other solitaire file
+# tabeau_to_foundation takes in an empty tableau num as card_pos
+# self.talon has a card that self.foundation does, check distribution of cards
+# talon to tableau error -- fixed
 # Errors below have all been fixed
 #   File "../agents/frameworks/recursive_bandit_framework.py", line 55, in estimateV
 #     arm_data = self.run_pull(state, bandit, depth)
@@ -47,6 +51,7 @@ class game:
       self.stock_resets = 0
       self.last_action = None
       self.cached_actions = [] # should be updated by an outside simulator
+      self.length = len(self.stock) + len(self.talon)+len(self.tableau[0])+len(self.tableau[1])+len(self.tableau[2])+len(self.tableau[3])+len(self.tableau[4])+len(self.tableau[5])+len(self.tableau[6])+len(self.foundation[0])+len(self.foundation[1])+len(self.foundation[2])+len(self.foundation[3])
 
   def shuffle(self):
     n = []
@@ -73,6 +78,11 @@ class game:
 
     #insert code
 
+  def get_length(self):
+    self.length = len(self.stock) + len(self.talon)+len(self.tableau[0])+len(self.tableau[1])+len(self.tableau[2])+len(self.tableau[3])+len(self.tableau[4])+len(self.tableau[5])+len(self.tableau[6])+len(self.foundation[0])+len(self.foundation[1])+len(self.foundation[2])+len(self.foundation[3])
+    print(self.length)
+    
+
   #########################################################################################################
   # Name: assign_tableau
   # Use: Used for filling up the tableau
@@ -98,7 +108,7 @@ class game:
 
 
   def create_stock(self):
-    # self.stock = []
+    self.stock = []
     for i in range(0,24):                           # CHANGE TO WHILE LOOP, perform testing (Mostly works)
       #pdb.set_trace()
       x = random.randint(0,len(self.cards)-1)
@@ -184,13 +194,16 @@ class game:
       if(card[2] == 13):
         self.tableau[tableau_num].append(card)              #Adds the card to the tableau
         self.talon.pop(-1)
+        return (self.return_scoring(1))
 
     top_tableau_card = self.tableau[tableau_num][-1]
-
+  
     if(top_tableau_card[1] == card[1]):
       print("Operation not valid, Try Again")
+      pdb.set_trace()
     elif(top_tableau_card[2] <= card[2]):
       print("Operation not valid. Try Again")
+      pdb.set_trace()
     elif((top_tableau_card[1] != card[1]) and (top_tableau_card[2]-1 == card[2])):
       self.tableau[tableau_num].append(card)              #Adds the card to the tableau
       self.talon.pop(-1)
@@ -198,9 +211,11 @@ class game:
       return (self.return_scoring(1))
     else:
       print("Operation not possible")             #Removes the card
+      pdb.set_trace()
 
       self.print_talon()
       self.print_tableua()
+
 
 
   def tableau_to_tableau (self, initial_tableau, final_tableau):
@@ -210,7 +225,7 @@ class game:
       if (self.tableau[initial_tableau][-1][2] == 13):
         self.tableau[final_tableau].append(self.tableau[initial_tableau][-1])              #Adds the card to the tableau
         self.tableau[initial_tableau].pop(-1)
-        return (self.scoring(1))  # Bane of my existence - forgetting this line took me around 6 hours to debug
+        return (self.return_scoring(1))  # Bane of my existence - forgetting this line took me around 6 hours to debug
     elif((self.tableau[initial_tableau][-1][1] != self.tableau[final_tableau][-1][1]) and (self.tableau[initial_tableau][-1][2] == self.tableau[final_tableau][-1][2]-1)):
       self.tableau[final_tableau].append(self.tableau[initial_tableau][-1])              #Adds the card to the tableau
       self.tableau[initial_tableau].pop(-1)
@@ -229,22 +244,28 @@ class game:
   # pos: the foundation slot to insert the card into
   #########################################################################################################
 
-  def tableau_to_foundation(self,card_pos,pos):
-    card = self.tableau[card_pos][-1]             # card to be moved
-    if(len(self.foundation[pos]) == 0):
-      if(card[2] == 1):                           # Checks if card is an ACE
+  def tableau_to_foundation(self,card_pos,pos,action):
+    try:
+      card = self.tableau[card_pos][-1]             # card to be moved
+      if(len(self.foundation[pos]) == 0):
+        if(card[2] == 1):                           # Checks if card is an ACE
+          self.foundation[pos].append(card)
+          self.tableau[card_pos].pop(-1)
+          # self.scoring(2)
+          return (self.return_scoring(2))
+        else:
+          pdb.set_trace()
+          print("Operation not possible\n\n")
+      elif((self.foundation[pos][-1][2] == card[2]-1) and (self.foundation[pos][-1][0]) == card[0]):
         self.foundation[pos].append(card)
         self.tableau[card_pos].pop(-1)
-        # self.scoring(2)
         return (self.return_scoring(2))
       else:
+        pdb.set_trace()
         print("Operation not possible\n\n")
-    elif((self.foundation[pos][-1][2] == card[2]-1) and (self.foundation[pos][-1][0]) == card[0]):
-      self.foundation[pos].append(card)
-      self.tableau[card_pos].pop(-1)
-      return (self.return_scoring(2))
-    else:
-      print("Operation not possible\n\n")
+    except:
+      print("in tableau_to_foundation")
+      pdb.set_trace()
 
   ########################################################################################################
   # pos: the foundation slot to insert the card into
@@ -364,18 +385,19 @@ class game:
 
 
   def print_tableua(self):
-    i = len(self.tableau)
-    max = 0
+    # i = len(self.tableau)
+    i = 6
+    maxx = 0
     print("\n\n                                     Tableau\n\n")
     for i in range(7):
       temp = len(self.tableau[i])
-      if(temp>max):
-        max = temp
+      if(temp>maxx):
+        maxx = temp
 
-    for i in range(max):   #safe bound 12
+    for i in range(maxx):   #safe bound 12
       counter = 0
       for j in range(7):
-        if(i<len(self.tableau[j]) and (len(self.tableau[i])>0)):
+        if(i<len(self.tableau[j]) and (len(self.tableau[j])>0)):
           output = ""
           num = str(self.tableau[j][i][2])
           if(int(num)<10):
@@ -435,7 +457,8 @@ class game:
 
     self.print_talon()
     self.print_tableua()
-    self.print_foundation()
+    # self.print_foundation()
+    print (self.foundation)
 
   def win(self):
     t_cards_foundation = 0
@@ -453,7 +476,9 @@ class game:
     # pdb.set_trace()
     # talon to tableau ex: t to ta1
     try:
-      if((action.find("t to") != -1) and (action.find("ta") != -1) and len(self.talon)>0):  #talon to tableua
+      if((action.find("t to") != -1) and (action.find("ta") != -1)):  #talon to tableua
+        if(len(self.talon) == 0):
+          return False
         card = self.talon[-1]
         tableau_num = int(action[7])   # ex: t to ta6
         if (len(self.tableau[tableau_num]) == 0):
@@ -493,8 +518,10 @@ class game:
       #   return True
 
       # talbeau to foundation ex: ta3 to f1
-      elif ((action.find("to f") != -1) and (action.find("ta") != -1) and len(self.tableau[int(action[2])])>0):
+      elif ((action.find("to f") != -1) and (action.find("ta") != -1)):
         # if (action.find("to f")):  # ex: ta1 to f3
+        if (len(self.tableau[int(action[2])])) == 0:
+          return False
         pos = int(action[8])
         tableau_num = int(action[2])
         card = self.tableau[tableau_num][-1]  # ERROR: CHANGE FROM TALON TO TABLEAU, TALON HAS NO USE HERE
@@ -511,7 +538,9 @@ class game:
           return False
       
       # talon to foundation ex: t to f1
-      elif((action.find("to f") != -1) and (action.find("t") != -1) and len(self.talon) > 0):   #t to f3
+      elif((action.find("to f") != -1) and (action.find("t") != -1)):   #t to f3
+        if(len(self.talon) == 0):
+          return False
         pos = int (action[-1]);
         card = self.talon[-1]
         if(len(self.foundation[pos]) == 0):
@@ -532,6 +561,8 @@ class game:
       elif((action.find("ta") == 0) and (action.find("to ta") != -1) and len(self.tableau[int(action[2])])>0): #ex: ta2 to ta3
         final_tableau = int(action[9])
         initial_tableau = int(action[2])
+        if (len(self.tableau[initial_tableau]) == 0):
+          return False
         if (len(self.tableau[final_tableau]) == 0):
           if(self.tableau[initial_tableau][-1][2] == 13):
             return True
@@ -629,7 +660,7 @@ class game:
     elif (action.find("ta") != -1 and action.find("to f") != -1):  # is tableau to foundation: ta1 to f1
       tableau_num = int(action[2])
       foundation_num = int(action[8])
-      reward = self.tableau_to_foundation(tableau_num,foundation_num)
+      reward = self.tableau_to_foundation(tableau_num,foundation_num,action)
       return (reward)
     elif (action.find("t to") != -1 and action.find("f") != -1):   #is talon to foundation: t to f1
       foundation_num = int(action[6])
