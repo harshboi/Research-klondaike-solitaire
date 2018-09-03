@@ -3,9 +3,11 @@ import math
 import pdb
 from itertools import chain
 import copy
+import time
 
 global str
 
+# Reducing complexity by removing memoize and adding an extra dimension for storage in the array
 # Memoize in tableau scoring based moves -- Pending
 # Fixed reinitialize from other solitaire file
 # tabeau_to_foundation takes in an empty tableau num as card_pos
@@ -40,34 +42,37 @@ class game:
     #self.cards = {'K':[['B','S'],['B','C'],['R','D'],['R','D']],"Q":[['B','S'],['B','C'],['R','D'],['R','D']],"J":[['B','S'],['B','C'],['R','D'],['R','D']],"A":[['B','S'],['B','C'],['R','D'],['R','D']],"2":[['B','S'],['B','C'],['R','D'],['R','D']],"3":[['B','S'],['B','C'],['R','D'],['R','D']]}
     #self.cards.update({"4":[['B','S'],['B','C'],['R','D'],['R','D']],"5":[['B','S'],['B','C'],['R','D'],['R','D']],"6":[['B','S'],['B','C'],['R','D'],['R','D']],"7":[['B','S'],['B','C'],['R','D'],['R','D']],"8":[['B','S'],['B','C'],['R','D'],['R','D']],"9":[['B','S'],['B','C'],['R','D'],['R','D']],"10":[['B','S'],['B','C'],['R','D'],['R','D']]})
     #self.cards.update({"A":[['B','S'],['B','C'],['R','D'],['R','D']]})
+      self.tempp = 0
       self.cards = []     # NOT USED, REMOVE
       self.tcards = []    # NOT USED PRESENTLY, JUST HOLDS A COPY OF EVERYTHING
       self.stock = []                             # Contains the decked to be flipped
       self.foundation = [[],[],[],[]]
       self.talon = []                            # Contains flipped cards
       self.tableau = [[],[],[],[],[],[],[]]       # 7 cards laid out aside eachother
-      self.shuffle()
+      # self.shuffle()
       self.score = 0
       self.stock_resets = 0
       self.last_action = None
       self.cached_actions = [] # should be updated by an outside simulator
       self.length = len(self.stock) + len(self.talon)+len(self.tableau[0])+len(self.tableau[1])+len(self.tableau[2])+len(self.tableau[3])+len(self.tableau[4])+len(self.tableau[5])+len(self.tableau[6])+len(self.foundation[0])+len(self.foundation[1])+len(self.foundation[2])+len(self.foundation[3])
+      self.memoize = []
+      self.actions = []
 
   def shuffle(self):
     n = []
     for i in range(1,11):
-      n.append(['D','R',i])
-      n.append(['H','R',i])
-      n.append(['S','B',i])
-      n.append(['C','B',i])
+      n.append(['D','R',i,0])
+      n.append(['H','R',i,0])
+      n.append(['S','B',i,0])
+      n.append(['C','B',i,0])
 
     face_cards = ["K","Q","K","A"]
     for i in range(11,14):
-      n.append(['C','B',i])
+      n.append(['C','B',i,0])
       # n.append(['C','B',""+face_cards[i-10]])   1 - A, 11 - J, 12 - Q, 13 - K
-      n.append(['S','B',i])
-      n.append(['D','R',i])
-      n.append(['H','R',i])
+      n.append(['S','B',i,0])
+      n.append(['D','R',i,0])
+      n.append(['H','R',i,0])
 
     #for i in range(1,26):
     self.cards = n
@@ -90,9 +95,11 @@ class game:
   #########################################################################################################
   def assign_tableau(self,n):
     tableau_num = 0
+    self.tempp += 1
     self.foundation = [[],[],[],[]]
     self.tableau = [[],[],[],[],[],[],[]]       # 7 cards laid out aside eachother
     for i in range(0,28):      # For each tableau
+      # time.sleep(1)
       x = random.randint(0,len(n)-1)   # Contains the card number
       # print("x is " + str(x) + " len of x  is " + str(len(n)) + "\n")
       card = n[x]                    # Stores a copy of the card
@@ -163,7 +170,8 @@ class game:
       final_tableau = int(final_tableau)
         # if((initial_tableau != final_tableau) and initial_tableau ):
           
-      self.tableau_to_tableau(initial_tableau, final_tableau)
+      action = ""
+      self.tableau_to_tableau(initial_tableau, final_tableau, action)
 
     win = self.win()
     return(win)
@@ -218,18 +226,33 @@ class game:
 
 
 
-  def tableau_to_tableau (self, initial_tableau, final_tableau):
+  def tableau_to_tableau (self, initial_tableau, final_tableau, action):
     # initial_tableau -=1
     # final_tableau -= 1
+    # memoize array structure = init_tableau fin_tableau init_card final_card
+    # ex: '0 2 HR3 SB2'
+    self.tableau[initial_tableau][-1][3] = 1
     if (len(self.tableau[final_tableau]) == 0):
       if (self.tableau[initial_tableau][-1][2] == 13):
         self.tableau[final_tableau].append(self.tableau[initial_tableau][-1])              #Adds the card to the tableau
         self.tableau[initial_tableau].pop(-1)
+        if (self.tableau[final_tableau][-1][3] == 1):
+          return 0  # Reward for moving a card that has been moved in the tableau previously
         return (self.return_scoring(1))  # Bane of my existence - forgetting this line took me around 6 hours to debug
     elif((self.tableau[initial_tableau][-1][1] != self.tableau[final_tableau][-1][1]) and (self.tableau[initial_tableau][-1][2] == self.tableau[final_tableau][-1][2]-1)):
-      self.tableau[final_tableau].append(self.tableau[initial_tableau][-1])              #Adds the card to the tableau
+      # self.memoize.append(str(final_tableau)+" "+str(initial_tableau)+" "+str(self.tableau[final_tableau][-1][0])+str(self.tableau[final_tableau][-1][1])+str(self.tableau[final_tableau][-1][2])+" ")
+      # self.memoize[-1] += str(self.tableau[initial_tableau][-1][0])+str(self.tableau[initial_tableau][-1][1])+str(self.tableau[initial_tableau][-1][2])
+      self.tableau[final_tableau].append(self.tableau[initial_tableau][-1])
       self.tableau[initial_tableau].pop(-1)
       # self.scoring(1)        // No scores given for moving a card with the tableau
+      # current_action = str(initial_tableau)+" "+str(final_tableau)+" "+str(self.tableau[initial_tableau][-1][0])+str(self.tableau[initial_tableau][-1][1])+str(self.tableau[initial_tableau][-1][2])+" "
+      # current_action += str(self.tableau[final_tableau][-1][0])+str(self.tableau[final_tableau][-1][1])+str(self.tableau[final_tableau][-1][2])
+      # pdb.set_trace()
+      # for i in range (len(self.memoize)):
+      #   if (self.memoize[i] == current_action):
+      #     return 0  # Reward is 0 if same element is moved inside the tableau
+      if (self.tableau[final_tableau][-1][3] == 1):
+        return 0
       return (self.return_scoring(1))
     else:
       print("Operation not possible")             #Removes the card
@@ -293,23 +316,25 @@ class game:
   #########################################################################################################
 
   def flip_stock(self):
-    if(len(self.stock)>=3):
+    if(len(self.stock)>=1):
       self.talon.append(self.stock.pop())
-      self.talon.append(self.stock.pop())
-      self.talon.append(self.stock.pop())
+      # self.talon.append(self.stock.pop())
+      # self.talon.append(self.stock.pop())
       return (0)
       
-    elif(len(self.stock)>0 and len(self.stock)<3):
-      for i in range(len(self.stock)):
-        self.talon.append(self.stock.pop())
-      return (0)
+    # elif(len(self.stock)>0 and len(self.stock)<3):
+      # for i in range(len(self.stock)):
+        # self.talon.append(self.stock.pop())
+      # return (0)
       
     elif(len(self.stock) == 0):
+      # pdb.set_trace()
       # if(self.stock_resets == 3):
       #   self.scoring(3);    # Will deduct points
       self.stock_resets += 1;
       for i in range(len(self.talon)):
         self.stock.append(self.talon.pop())
+        # pdb.set_trace()
       if (self.stock_resets >= 3):
         self.stock_resets = 0
         return(self.return_scoring(3))
@@ -339,6 +364,7 @@ class game:
     elif(move_type == 2):
       return 10
     elif(move_type == 3):
+      return -25
       if (self.score - 25 > 0):
         return -25
       else:
@@ -362,12 +388,14 @@ class game:
     return output
 
   def print_talon(self):
-    print("\n\n                                     Talon:\n")
-    print("|||||")
-    print("|||||")
-    print("|||||")
-    print("|||||\n")
+    if(len(self.stock) != 0):
+      print("\n\n                                     Talon:\n")
+      print("|||||")
+      print("|||||")
+      print("|||||")
+      print("|||||\n")
     output = ""
+    print("\n\n\n")
     #len_talon = len(self.talon)
     if(len(self.talon) > 0):
       if(len(self.talon) > 3):
@@ -645,6 +673,7 @@ class game:
     return possible_actions
 
   def take_action (self, action):
+    self.actions.append(action)
     if (action.find("fl") != -1):  # involves flipping the stock or talon
       reward = self.flip_stock()
       return (reward)
@@ -655,7 +684,7 @@ class game:
     elif (action.find("to ta") != -1):   # is tableau to tableau: ta1 to ta2
       initial_tableau = int(action[2])
       final_tableau = int(action[9])
-      reward = self.tableau_to_tableau(initial_tableau, final_tableau)
+      reward = self.tableau_to_tableau(initial_tableau, final_tableau, action)
       return (reward)
     elif (action.find("ta") != -1 and action.find("to f") != -1):  # is tableau to foundation: ta1 to f1
       tableau_num = int(action[2])
@@ -677,6 +706,7 @@ class game:
     Game.stock_resets = self.stock_resets
     Game.cached_actions = copy.deepcopy(self.cached_actions)
     Game.last_action = copy.deepcopy(self.last_action)
+    Game.actions = copy.deepcopy(self.actions)
     # game.
     return Game
     # board.cached_actions, board.last_action = self.cached_actions, self.last_action
