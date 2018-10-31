@@ -7,12 +7,11 @@ import time
 
 global str
 
+# Work on is open function -- Function for moving multiple face up cards
+# Add a function for moving multiple cards -- Multiple faceup cards at the same time (specifying the action)
 # Reducing complexity by removing memoize and adding an extra dimension for storage in the array
 # Memoize in tableau scoring based moves -- Pending
-# Fixed reinitialize from other solitaire file
-# tabeau_to_foundation takes in an empty tableau num as card_pos
 # self.talon has a card that self.foundation does, check distribution of cards
-# talon to tableau error -- fixed
 # Errors below have all been fixed
 #   File "../agents/frameworks/recursive_bandit_framework.py", line 55, in estimateV
 #     arm_data = self.run_pull(state, bandit, depth)
@@ -61,18 +60,18 @@ class game:
   def shuffle(self):
     n = []
     for i in range(1,11):
-      n.append(['D','R',i,0])
-      n.append(['H','R',i,0])
-      n.append(['S','B',i,0])
-      n.append(['C','B',i,0])
-
+      n.append(['D','R',i,0,0,0])  # First 0 for stopping rewarding points for the same card being oscillated again, second 0 for stating whether a card is known or not
+      n.append(['H','R',i,0,0,0])  #third 0 for showing that multiple cards are face up together
+      n.append(['S','B',i,0,0,0])  
+      n.append(['C','B',i,0,0,0])  
+  
     face_cards = ["K","Q","K","A"]
     for i in range(11,14):
-      n.append(['C','B',i,0])
+      n.append(['C','B',i,0,0,0])  #third 0 for showing that multiple cards are face up together
       # n.append(['C','B',""+face_cards[i-10]])   1 - A, 11 - J, 12 - Q, 13 - K
-      n.append(['S','B',i,0])
-      n.append(['D','R',i,0])
-      n.append(['H','R',i,0])
+      n.append(['S','B',i,0,0,0])
+      n.append(['D','R',i,0,0,0])
+      n.append(['H','R',i,0,0,0])
 
     #for i in range(1,26):
     self.cards = n
@@ -109,9 +108,10 @@ class game:
           tableau_num += 1
 
       n.pop(x)
+    for i in range(7):
+      self.tableau[i][-1][4] = 1    # Makes the last card a
 
     self.cards = n
-
 
 
   def create_stock(self):
@@ -488,6 +488,7 @@ class game:
     # self.print_foundation()
     print (self.foundation)
 
+
   def win(self):
     t_cards_foundation = 0
     for i in range(4):
@@ -499,6 +500,14 @@ class game:
 
     return(1)
       # ADD FUNCTIONALITY FOR ALERTING GAME OVER
+
+  # Function for creaating face up card actions
+  def is_open_action(self,possible_actions):
+    for i in range(7):
+      for j in range (i):
+        if (self.tableau[i][j][5] == 1):
+          action = "ta"+str(self.tableau[j])+" to ta"+
+    
 
   def is_legal(self, action):
     # pdb.set_trace()
@@ -516,18 +525,12 @@ class game:
         length = self.tableau[tableau_num]                          #tableau_num denotes the tableau to insert cards in
         top_tableau_card = self.tableau[tableau_num][-1]
         if(top_tableau_card[1] == card[1]):
-          # print("Operation not valid, Try Again")
           return False
         elif(top_tableau_card[2] <= card[2]):
-          # print("Operation not valid. Try Again")
           return False
         elif((top_tableau_card[1] != card[1]) and (top_tableau_card[2]-1 == card[2])):
-          # self.tableau[tableau_num].append(card)              #Adds the card to the tableau
-          # self.talon.pop(-1)
-          # self.scoring(1)
           return True
         else:
-          # print("Operation not possible")             #Removes the card
           return False
       
       # Flip stock or talon: fl
@@ -638,15 +641,9 @@ class game:
     possible_actions = []
     # pdb.set_trace()
     string_builder = "fl"               #fl - flip the stock/talon
-    # string_builder = "s to t"
     legality = self.is_legal(string_builder)
     if (legality == True):
       possible_actions.append(string_builder)
-    # string_builder = "t to s"
-    # legality = self.is_legal(string_builder)
-    # if (legality == True):
-    #   possible_actions.append(string_builder)
-    # if(len(self.tableau) > 0):
     for i in range(7):    # 7 is the number of tableaus
       string_builder = "t to ta" + str(i)   # t to ta1 - talon to tableau
       legality = self.is_legal(string_builder)
@@ -667,7 +664,7 @@ class game:
         legality = self.is_legal(string_builder)
         if (legality == True):
           possible_actions.append(string_builder)
-
+    self.is_open_action(possible_actions)
     # return list(chain.from_iterable([func(self) for func in possible_actions]))  #generate actions and flatten lists   # known as single line functions for lists REFERENCE
     # pdb.set_trace()
     return possible_actions
