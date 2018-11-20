@@ -11,7 +11,7 @@ import pdb
 
 class SolitaireState(abstract_state.AbstractState):
     env_name = "Solitaire"
-    num_players = 1S
+    num_players = 1
 
     def __init__(self):
         pdb.set_trace()

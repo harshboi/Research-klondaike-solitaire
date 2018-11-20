@@ -10,8 +10,7 @@ global str
 # Work on is open function -- Function for moving multiple face up cards
 # Add a function for moving multiple cards -- Multiple faceup cards at the same time (specifying the action)
 # Reducing complexity by removing memoize and adding an extra dimension for storage in the array
-# Memoize in tableau scoring based moves -- Pending
-# self.talon has a card that self.foundation does, check distribution of cards
+# self.talon has a card that self.foundation does, check distribution of cards -- Done - Resolved
 # Errors below have all been fixed
 #   File "../agents/frameworks/recursive_bandit_framework.py", line 55, in estimateV
 #     arm_data = self.run_pull(state, bandit, depth)
@@ -713,10 +712,18 @@ class game:
 class game_states(game):
   def __init__(self):
     super().__init__()
-    self.stage = []
+    self.state = []
+    self.black_listStates = []
 
   def add_state(self,obj):
-    self.stage.append(obj)
+    self.state.append(obj)
+
+  def check_repetetive_state(self,obj):
+    for elem in self.state:
+      if obj == elem:
+        break;
+      else:
+        self.state.append(obj)
 
 def main():
   a = game()
