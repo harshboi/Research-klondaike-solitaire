@@ -55,15 +55,16 @@ class game:
       self.length = len(self.stock) + len(self.talon)+len(self.tableau[0])+len(self.tableau[1])+len(self.tableau[2])+len(self.tableau[3])+len(self.tableau[4])+len(self.tableau[5])+len(self.tableau[6])+len(self.foundation[0])+len(self.foundation[1])+len(self.foundation[2])+len(self.foundation[3])
       self.memoize = []
       self.actions = []
+      self.second_last_action = None    # Is used for checking the second last card moved to prevent loops caused by repeating actions
 
   def shuffle(self):
     n = []
     for i in range(1,11):
       n.append(['D','R',i,0,0,0])  # First 0 for stopping rewarding points for the same card being oscillated again, second 0 for stating whether a card is known or not
       n.append(['H','R',i,0,0,0])  #third 0 for showing that multiple cards are face up together
-      n.append(['S','B',i,0,0,0])  
-      n.append(['C','B',i,0,0,0])  
-  
+      n.append(['S','B',i,0,0,0])
+      n.append(['C','B',i,0,0,0])
+
     face_cards = ["K","Q","K","A"]
     for i in range(11,14):
       n.append(['C','B',i,0,0,0])  #third 0 for showing that multiple cards are face up together
@@ -84,7 +85,7 @@ class game:
   def get_length(self):
     self.length = len(self.stock) + len(self.talon)+len(self.tableau[0])+len(self.tableau[1])+len(self.tableau[2])+len(self.tableau[3])+len(self.tableau[4])+len(self.tableau[5])+len(self.tableau[6])+len(self.foundation[0])+len(self.foundation[1])+len(self.foundation[2])+len(self.foundation[3])
     print(self.length)
-    
+
 
   #########################################################################################################
   # Name: assign_tableau
@@ -108,7 +109,7 @@ class game:
 
       n.pop(x)
     for i in range(7):
-      self.tableau[i][-1][4] = 1    # Makes the last card a
+      self.tableau[i][-1][4] = 1    # Makes the last card a face up card
 
     self.cards = n
 
@@ -168,7 +169,7 @@ class game:
       final_tableau = input("Enter the tableau to move the card to (0-6) ")
       final_tableau = int(final_tableau)
         # if((initial_tableau != final_tableau) and initial_tableau ):
-          
+
       action = ""
       self.tableau_to_tableau(initial_tableau, final_tableau, action)
 
@@ -204,7 +205,7 @@ class game:
         return (self.return_scoring(1))
 
     top_tableau_card = self.tableau[tableau_num][-1]
-  
+
     if(top_tableau_card[1] == card[1]):
       print("Operation not valid, Try Again")
       pdb.set_trace()
@@ -320,12 +321,12 @@ class game:
       # self.talon.append(self.stock.pop())
       # self.talon.append(self.stock.pop())
       return (0)
-      
+
     # elif(len(self.stock)>0 and len(self.stock)<3):
       # for i in range(len(self.stock)):
         # self.talon.append(self.stock.pop())
       # return (0)
-      
+
     elif(len(self.stock) == 0):
       # pdb.set_trace()
       # if(self.stock_resets == 3):
@@ -500,19 +501,31 @@ class game:
     return(1)
       # ADD FUNCTIONALITY FOR ALERTING GAME OVER
 
-  # Function for creaating face up card actions
+  # Function for creating face up card actions
   def is_open_action(self,possible_actions):
-    for i in range(7):
-      for j in range (i):
-        if (self.tableau[i][j][5] == 1):
-          action = "ta"+str(self.tableau[j])+" to ta"+
-    
+    for i in range(7):  # Is the number of stacks in the tableau
+      if (len(self.tableau[i]) != 0):
+        j = len(self.tableau[i])-1
+        while (j>=0):   # Counter for cycling face up cards
+          if (self.tableau[i][j][4] == 1):    # checks if the card is a face up card
+            card_stack = str(i) + "id" + str(j-len(self.tableau[i]))    # Format: 0id-1 to fd4  where 0=tableau_number, -1 is the card number in the tableau and 4 is the final tableau to move to
+            for k in range(7):
+              if (i == k):
+                continue
+              if (len(self.tableau[k]) > 0):
+                action = card_stack + " to fd" + str(k)
+                possible_actions.append(action)
+            j -= 1
+          else:
+            break
+
+
 
   def is_legal(self, action):
     # pdb.set_trace()
     # talon to tableau ex: t to ta1
     try:
-      if((action.find("t to") != -1) and (action.find("ta") != -1)):  #talon to tableua
+      if((action.find("t to") != -1) and (action.find("ta") != -1)):  #talon to tableau
         if(len(self.talon) == 0):
           return False
         card = self.talon[-1]
@@ -531,21 +544,12 @@ class game:
           return True
         else:
           return False
-      
+
       # Flip stock or talon: fl
       elif (action.find("fl") != -1):
         if (len(self.stock)>0 or len(self.talon)>0):
           return True
         else: return False
-
-
-      # stock to talon ex: s to t
-
-      # stock to foundation: s to f1
-
-      # talon to stock ex: t to s
-      # elif ((action.find("t to") != -1) and (action.find("s") != -1) and len(self.stock) == 0):
-      #   return True
 
       # talbeau to foundation ex: ta3 to f1
       elif ((action.find("to f") != -1) and (action.find("ta") != -1)):
@@ -566,7 +570,7 @@ class game:
         else:
           # print("Operation not possible\n\n")
           return False
-      
+
       # talon to foundation ex: t to f1
       elif((action.find("to f") != -1) and (action.find("t") != -1)):   #t to f3
         if(len(self.talon) == 0):
@@ -586,7 +590,7 @@ class game:
           # self.foundation[pos].append(card)
           # self.talon.pop(-1)
           # self.scoring(2)
-      
+
       # tableau to tableau ex: ta1 to ta3
       elif((action.find("ta") == 0) and (action.find("to ta") != -1) and len(self.tableau[int(action[2])])>0): #ex: ta2 to ta3
         final_tableau = int(action[9])
@@ -605,7 +609,7 @@ class game:
         else:
           # print("Operation not possible")             #Removes the card
           return False
-      
+
       else:
         return False
     # except:
@@ -681,6 +685,9 @@ class game:
       initial_tableau = int(action[2])
       final_tableau = int(action[9])
       reward = self.tableau_to_tableau(initial_tableau, final_tableau, action)
+      for i in range(7):
+        if (len(self.tableau[i]) != 0):
+          self.tableau[i][-1][4] = 1
       return (reward)
     elif (action.find("ta") != -1 and action.find("to f") != -1):  # is tableau to foundation: ta1 to f1
       tableau_num = int(action[2])
@@ -707,6 +714,8 @@ class game:
     return Game
     # board.cached_actions, board.last_action = self.cached_actions, self.last_action
     # board.verify_not_checked, board.allow_king_capture = self.verify_not_checked, self.allow_king_capture
+
+  def monte_carlo_tree_construction(self):
 
 
 class game_states(game):
@@ -755,7 +764,7 @@ def take_action(self, action):
           self.game_outcome = 'win' if self.current_state.return_game_state else 'in progress'
           # if self.game_outcome == 'win':
             # print("Game over")
-        return 
+        return
         # if self.current_state.return_game_state == 1:
             # self.game_outcome = previous_player if self.current_state.is_checked(self.get_current_color()) else 'draw'
 

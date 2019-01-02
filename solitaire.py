@@ -43,6 +43,10 @@ class SolitaireState(abstract_state.AbstractState):
     def take_action(self, action):
         # reward = self.current_state.move_piece(action)
         reward = self.current_state.take_action(action)
+        if (self.current_state.last_action != None):
+            self.current_state.second_last_action = self.current_state.last_action
+        if (self.current_state.second_last_action == action):
+            reward = -10
         # IMPLEMENT a call that actually moves stuff
         self.current_state.last_action = action   # Setup functions for last_action  ERROR  // Global CHANGE of previous_player to previous_action
         # self.current_state.last_action, previous_state = action, self.current_player   # Setup functions for last_action  ERROR  // Global CHANGE of previous_player to previous_action
@@ -61,7 +65,7 @@ class SolitaireState(abstract_state.AbstractState):
         # self.f.write("\n")
         # self.tableau.write(str(self.current_state.tableau))
         # self.tableau.write("\n")
-        # print reward  
+        # print reward
         # print (reward)
         # if(type(reward) != )
         self.helperr.append(self.current_state.foundation)
@@ -104,4 +108,3 @@ class SolitaireState(abstract_state.AbstractState):
 
     def __str__(self):
         return self.current_state.__str__()  # print board
-    
