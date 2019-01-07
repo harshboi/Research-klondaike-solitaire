@@ -56,6 +56,8 @@ class game:
       self.memoize = []
       self.actions = []
       self.second_last_action = None    # Is used for checking the second last card moved to prevent loops caused by repeating actions
+      self.past_actions = []
+      self.open_talon = []
 
   def shuffle(self):
     n = []
@@ -192,7 +194,7 @@ class game:
   #              current card nubmer
   # Index: Index of the current in the talon. Used for removing from the stock/talon
   #########################################################################################################
-  def tableau_addition(self,tableau_num):   #talon_to_tableau                                                              # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FICIFIXFIXFIXFIXFIX!!!!!!!!!!!
+  def tableau_addition(self,tableau_num):   #talon_to_tableau
     #add color checking feature   -- Maybe done
     #add number checking feature  -- Maybe done
 
@@ -225,19 +227,39 @@ class game:
       self.print_tableua()
 
 
-
   def tableau_to_tableau (self, initial_tableau, final_tableau, action):
-    # initial_tableau -=1
+    # initial_tableau -=1aS
     # final_tableau -= 1
     # memoize array structure = init_tableau fin_tableau init_card final_card
     # ex: '0 2 HR3 SB2'
-    self.tableau[initial_tableau][-1][3] = 1
-    if (len(self.tableau[final_tableau]) == 0):
+    if (action.find("to fd") != -1):  #tableau with multiple face-up cards, ex: 0id-1 to fd4
+      init_tableau = int(action[0])
+      final_tableau = int(action[-1])
+      faceup_card = int(action[3]+action[4])
+      if (len(self.tableau[final_tableau]) == 0):
+        if (self.tableau[initial_tableau][faceup_card][2] == 13):
+          self.tableau[final_tableau].append(self.tableau[initial_tableau][-1])              #Adds the card to the tableau
+          self.tableau[initial_tableau].pop(-1)
+          return (self.return_scoring(1))  # Bane of my existence - forgetting this line took me around 6 hours to debug
+      elif((self.tableau[initial_tableau][faceup_card][1] != self.tableau[final_tableau][-1][1]) and (self.tableau[initial_tableau][faceup_card][2] == self.tableau[final_tableau][-1][2]-1)):
+        # self.memoize.append(str(final_tableau)+" "+str(initial_tableau)+" "+str(self.tableau[final_tableau][-1][0])+str(self.tableau[final_tableau][-1][1])+str(self.tableau[final_tableau][-1][2])+" ")
+        # self.memoize[-1] += str(self.tableau[initial_tableau][-1][0])+str(self.tableau[initial_tableau][-1][1])+str(self.tableau[initial_tableau][-1][2])
+        counter = faceup_card
+        for i in range(abs(faceup_card)):
+          self.tableau[final_tableau].append(self.tableau[initial_tableau][counter])
+          self.tableau[initial_tableau].pop(counter)
+          counter += 1
+        return (abs(faceup_card) * self.return_scoring(1))
+      print("Error in tableau_to_tableau faceupcard part")
+      pdb.set_trace()
+
+    # self.tableau[initial_tableau][-1][3] = 1      # Remove
+    elif (len(self.tableau[final_tableau]) == 0):
       if (self.tableau[initial_tableau][-1][2] == 13):
         self.tableau[final_tableau].append(self.tableau[initial_tableau][-1])              #Adds the card to the tableau
         self.tableau[initial_tableau].pop(-1)
-        if (self.tableau[final_tableau][-1][3] == 1):
-          return 0  # Reward for moving a card that has been moved in the tableau previously
+        # if (self.tableau[final_tableau][-1][3] == 1):
+          # return 0  # Reward for moving a card that has been moved in the tableau previously
         return (self.return_scoring(1))  # Bane of my existence - forgetting this line took me around 6 hours to debug
     elif((self.tableau[initial_tableau][-1][1] != self.tableau[final_tableau][-1][1]) and (self.tableau[initial_tableau][-1][2] == self.tableau[final_tableau][-1][2]-1)):
       # self.memoize.append(str(final_tableau)+" "+str(initial_tableau)+" "+str(self.tableau[final_tableau][-1][0])+str(self.tableau[final_tableau][-1][1])+str(self.tableau[final_tableau][-1][2])+" ")
@@ -309,6 +331,9 @@ class game:
       self.talon.pop(-1)
       return (self.return_scoring(2))
       # self.scoring(2)
+
+
+  def open_talon_to_foundation(self,foundation_num,open_talon_num):
 
   #########################################################################################################
   #Parameters:-
@@ -438,11 +463,11 @@ class game:
             num = "Q "
           elif(self.tableau[j][i][2] == 13):
             num = "K "
-          output = self.tableau[j][i][0] + " " + self.tableau[j][i][1] + " " + num + "  |  "
+          output = self.tableau[j][i][0] + " " + self.tableau[j][i][1] + " " + num + " " + str(self.tableau[j][i][4]) + "  |  "
           print(output,end = "  ")
         elif(i>len(self.tableau[j])-1):
           counter += 1
-          print("             ",end ="")
+          print("               ",end ="")
         if(counter == 7):
           break
       print("\n")
@@ -501,6 +526,16 @@ class game:
     return(1)
       # ADD FUNCTIONALITY FOR ALERTING GAME OVER
 
+  # This function eliminates the need for the stock
+  def playable_stock(self):
+    counter = 1
+    for i in range(len(self.stock)):
+      if (counter%3 == 0):
+        self.open_talon.append(self.stock[i])
+        counter = 0
+      counter += 1
+
+
   # Function for creating face up card actions
   def is_open_action(self,possible_actions):
     for i in range(7):  # Is the number of stacks in the tableau
@@ -510,22 +545,41 @@ class game:
           if (self.tableau[i][j][4] == 1):    # checks if the card is a face up card
             card_stack = str(i) + "id" + str(j-len(self.tableau[i]))    # Format: 0id-1 to fd4  where 0=tableau_number, -1 is the card number in the tableau and 4 is the final tableau to move to
             for k in range(7):
-              if (i == k):
-                continue
+              if (i == k): continue
               if (len(self.tableau[k]) > 0):
                 action = card_stack + " to fd" + str(k)
-                possible_actions.append(action)
+                legality = self.is_legal(action)
+                if legality == True: possible_actions.append(action)
             j -= 1
           else:
             break
+    return possible_actions
 
 
 
   def is_legal(self, action):
     # pdb.set_trace()
-    # talon to tableau ex: t to ta1
     try:
-      if((action.find("t to") != -1) and (action.find("ta") != -1)):  #talon to tableau
+      if (action.find("to fd") != -1):  #tableau with multiple face-up cards, ex: 0id-1 to fd4
+        initial_tableau = int(action[0])
+        final_tableau = int(action[-1])
+        faceup_card = int(action[3]+action[4])
+        if (len(self.tableau[initial_tableau]) == 0):
+          return False
+        if (len(self.tableau[final_tableau]) == 0):
+          if(self.tableau[initial_tableau][faceup_card][2] == 13):
+            return True
+          else: return False
+          # else: return False
+        if(len(self.tableau[initial_tableau])<=0 and len(self.tableau[final_tableau])<=0):
+          return False
+        if((self.tableau[initial_tableau][faceup_card][1] != self.tableau[final_tableau][-1][1]) and (self.tableau[initial_tableau][faceup_card][2] == self.tableau[final_tableau][-1][2]-1)):
+          return True
+        else:
+          return False
+
+      # talon to tableau ex: t to ta1
+      elif((action.find("t to") != -1) and (action.find("ta") != -1)):  #talon to tableau
         if(len(self.talon) == 0):
           return False
         card = self.talon[-1]
@@ -563,7 +617,6 @@ class game:
           if(card[2] == 1):                   # Checks if card is an ACE
             return True
           else:
-            # print("Operation not possible\n\n")
             return False
         elif((self.foundation[pos][-1][2] == card[2]-1) and (self.foundation[pos][-1][0]) == card[0]):
           return True
@@ -575,21 +628,15 @@ class game:
       elif((action.find("to f") != -1) and (action.find("t") != -1)):   #t to f3
         if(len(self.talon) == 0):
           return False
-        pos = int (action[-1]);
+        pos = int (action[-1])
         card = self.talon[-1]
         if(len(self.foundation[pos]) == 0):
           if(card[2] == 1):
-            return True;
-            # self.foundation[pos].append(card)
-            # self.talon.pop(-1)
-            # self.scoring(2)
+            return True
           else:
             return False
         elif((self.foundation[pos][-1][2] == card[2]-1) and (self.foundation[pos][-1][0] == card[0])):           #CHANGED, MAYBE ERROR
-          return False;
-          # self.foundation[pos].append(card)
-          # self.talon.pop(-1)
-          # self.scoring(2)
+          return True
 
       # tableau to tableau ex: ta1 to ta3
       elif((action.find("ta") == 0) and (action.find("to ta") != -1) and len(self.tableau[int(action[2])])>0): #ex: ta2 to ta3
@@ -609,7 +656,18 @@ class game:
         else:
           # print("Operation not possible")             #Removes the card
           return False
-
+      elif (action.find("op_t") != -1 and action.find("to f") != -1):  # op_t5 to f4
+        talon_number = int(action[4])
+        foundation_number = int(action[-1])
+        if (len(self.foundation[foundation_number]) == 0):
+          if (self.open_talon[talon_number] == 1):
+            return True
+          else:
+            return False
+        elif (self.foundation[foundation_number][-1][2] == self.open_talon[talon_number][2]-1 and self.foundation[foundation_number][-1][0] = self.open_talon[talon_number][0]):
+          return True
+        else:
+          return False
       else:
         return False
     # except:
@@ -667,37 +725,81 @@ class game:
         legality = self.is_legal(string_builder)
         if (legality == True):
           possible_actions.append(string_builder)
+    for i in range(len(self.open_talon)):
+      for j in range(4):
+        string_builder = "op_t" + str(i) + " to f" + str(j)   # op_t9 to f3
+        legality = self.is_legal(string_builder)
     self.is_open_action(possible_actions)
     # return list(chain.from_iterable([func(self) for func in possible_actions]))  #generate actions and flatten lists   # known as single line functions for lists REFERENCE
     # pdb.set_trace()
     return possible_actions
 
+
   def take_action (self, action):
     self.actions.append(action)
-    if (action.find("fl") != -1):  # involves flipping the stock or talon
+    self.past_actions.append([self.talon,self.tableau,self.foundation])
+
+    if (action.find("to fd") != -1):  #tableau with multiple face-up cards, ex: 0id-1 to fd4
+      initial_tableau = int(action[0])
+      final_tableau = int(action[-1])
+      faceup_card = int(action[3]+action[4])
+      reward = 0
+      self.tableau_to_tableau(initial_tableau, final_tableau, action)
+      for i in range(7):
+        if (len(self.tableau[i]) != 0 and self.tableau[i][-1][4] != 1):
+          self.tableau[i][-1][4] = 1
+          reward += 5
+      for i in range(len(self.past_actions)):
+        temp = [self.talon,self.tableau,self.foundation]
+        if (temp == self.past_actions[i]):
+          self.past_actions.append([self.talon,self.tableau,self.foundation])
+          return (-100)
+      self.past_actions.append([self.talon,self.tableau,self.foundation])
+      return (reward)
+
+    elif (action.find("fl") != -1):  # involves flipping the stock or talon
       reward = self.flip_stock()
       return (reward)
+
     elif (action.find("t to ta") != -1):  # is talon to tableau
       tableau_num = int(action[7])
       reward = self.tableau_addition(tableau_num)
+      self.tableau[tableau_num][-1][4] = 1
       return (reward)
+
     elif (action.find("to ta") != -1):   # is tableau to tableau: ta1 to ta2
       initial_tableau = int(action[2])
       final_tableau = int(action[9])
-      reward = self.tableau_to_tableau(initial_tableau, final_tableau, action)
+      reward = 0
+      self.tableau_to_tableau(initial_tableau, final_tableau, action)
       for i in range(7):
-        if (len(self.tableau[i]) != 0):
+        if (len(self.tableau[i]) != 0 and self.tableau[i][-1][4] != 1):
           self.tableau[i][-1][4] = 1
+          reward += 5
+      for i in range(len(self.past_actions)):
+        temp = [self.talon,self.tableau,self.foundation]
+        if (temp == self.past_actions[i]):
+          self.past_actions.append([self.talon,self.tableau,self.foundation])
+          return (-100)
+      self.past_actions.append([self.talon,self.tableau,self.foundation])
       return (reward)
+
     elif (action.find("ta") != -1 and action.find("to f") != -1):  # is tableau to foundation: ta1 to f1
       tableau_num = int(action[2])
       foundation_num = int(action[8])
       reward = self.tableau_to_foundation(tableau_num,foundation_num,action)
+      self.past_actions = []
       return (reward)
+
     elif (action.find("t to") != -1 and action.find("f") != -1):   #is talon to foundation: t to f1
       foundation_num = int(action[6])
       reward = self.talon_to_foundation(foundation_num)
       return (reward)
+
+    elif (action.find("op_t") != -1 and action.find("to f") != -1):    # op_t5 to f4
+      foundation_num = int(action[-1])
+      open_talon_num = int(action[4])
+      reward = self.open_talon_to_foundation(foundation_num, open_talon_num)
 
   def __copy__(self):
     Game = game()
@@ -715,7 +817,7 @@ class game:
     # board.cached_actions, board.last_action = self.cached_actions, self.last_action
     # board.verify_not_checked, board.allow_king_capture = self.verify_not_checked, self.allow_king_capture
 
-  def monte_carlo_tree_construction(self):
+  # def monte_carlo_tree_construction(self):
 
 
 class game_states(game):

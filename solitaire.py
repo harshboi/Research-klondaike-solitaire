@@ -22,6 +22,8 @@ class SolitaireState(abstract_state.AbstractState):
         self.resources = {}  # sprites for pygame
         self.f = open("../../../actions.txt", "a")
         self.tableau = open("../../../tableau.txt", "a")
+        self.past_state = []  # will only store the tableau and foundation and will be checked to prevent redundant actions from taking place
+
 
     def reinitialize(self):  # called after one entire game has been played
         self.current_state = solitaire.game()
@@ -42,11 +44,15 @@ class SolitaireState(abstract_state.AbstractState):
 
     def take_action(self, action):
         # reward = self.current_state.move_piece(action)
+
         reward = self.current_state.take_action(action)
-        if (self.current_state.last_action != None):
-            self.current_state.second_last_action = self.current_state.last_action
-        if (self.current_state.second_last_action == action):
-            reward = -10
+        # for i in range (len(self.past_state)):
+            # if (self.past_state[i][0] == self.current_state.talon and self.past_state[i][1] == self.current_state.tableau and self.past_state[i][2] == self.current_state.foundation):
+                # reward = -10
+        # if (self.current_state.last_action != None):
+            # self.current_state.second_last_action = self.current_state.last_action
+        # if (self.current_state.second_last_action == action):
+            # reward = -10
         # IMPLEMENT a call that actually moves stuff
         self.current_state.last_action = action   # Setup functions for last_action  ERROR  // Global CHANGE of previous_player to previous_action
         # self.current_state.last_action, previous_state = action, self.current_player   # Setup functions for last_action  ERROR  // Global CHANGE of previous_player to previous_action
@@ -68,6 +74,7 @@ class SolitaireState(abstract_state.AbstractState):
         # print reward
         # print (reward)
         # if(type(reward) != )
+        # self.past_state.append([self.current_state.talon,self.current_state.tableau,self.current_state.foundation])
         self.helperr.append(self.current_state.foundation)
         if(str(type(reward)) != "<class 'int'>"):
             print (str(type(reward)))
