@@ -671,7 +671,7 @@ class game:
 
       # talon to tableau ex: t to ta1
       elif((action.find("t to") != -1) and (action.find("ta") != -1)):  #talon to tableau
-        if(len(self.talon) == 0):
+        if(len(self.open_talon) == 0):
           return False
         card = self.talon[-1]
         tableau_num = int(action[7])   # ex: t to ta6
@@ -760,7 +760,7 @@ class game:
           # print("Operation not possible")             #Removes the card
           return False
       elif (action.find("op_t") != -1 and action.find("->tableau") != -1): #op_t6 ->tableau5
-        if(len(self.talon) == 0):
+        if(len(self.open_talon) == 0):
           return False
         open_talon_card = int(action[4])
         card = self.open_talon[open_talon_card]
