@@ -61,8 +61,11 @@ class SolitaireState(abstract_state.AbstractState):
         self.current_state.cached_actions = []
         self.get_actions()  # Line 53
         # fetch_reward = self.current_state.get_reward(action)
+        # if (self.current_state.return_game_state == 1):
+            # pdb.set_trace
         if (len(self.current_state.cached_actions) == 0):
-            self.game_outcome = 'win' if self.current_state.return_game_state else 'in progress'
+            # pdb.set_trace()
+            self.game_outcome = 'win' if self.current_state.return_game_state else None
             # if self.game_outcome == 'win':
             # print("Game over")
         # pdb.set_trace()
@@ -89,6 +92,10 @@ class SolitaireState(abstract_state.AbstractState):
     def get_actions(self):
         if len(self.current_state.cached_actions) == 0:
             self.current_state.cached_actions = self.current_state.get_actions()
+        if len(self.current_state.cached_actions) == 0:
+            pdb.set_trace()
+
+
         return self.current_state.cached_actions
 
     # def get_current_color(self):
