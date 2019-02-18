@@ -92,10 +92,8 @@ class SolitaireState(abstract_state.AbstractState):
     def get_actions(self):
         if len(self.current_state.cached_actions) == 0:
             self.current_state.cached_actions = self.current_state.get_actions()
-        if len(self.current_state.cached_actions) == 0:
-            pdb.set_trace()
-
-
+        # if len(self.current_state.cached_actions) == 0:
+            # pdb.set_trace()
         return self.current_state.cached_actions
 
     # def get_current_color(self):

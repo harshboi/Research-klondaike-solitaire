@@ -4,17 +4,38 @@ import pdb
 from itertools import chain
 import copy
 import time
-
+import sys, os
 global str
 
-# Run with  runner.py from chess.py and check when cached actions is 0
-# Error: self.open_talon went to length 0 suddenly on executing action opt_t to f
-# Error in is_legal pattern matching or some shit in open_talon related stuff, Fix
-# Work on is open function -- Function for moving multiple face up cards
-# Add a function for moving multiple cards -- Multiple faceup cards at the same time (specifying the action)
-# Reducing complexity by removing memoize and adding an extra dimension for storage in the array
-# self.talon has a card that self.foundation does, check distribution of cards -- Done - Resolved
-# Errors below have all been fixed
+  # fix the multiple number argument error in action. Ex: op_t18 ->tableau6 will be read as op_t1 ->tableau6
+    # (Pdb) card = state.current_state.open_talon[open_talon_card]
+    # (Pdb) card
+    # ['D', 'R', 9, 0, 0, 0]
+    # (Pdb) action
+    # 'op_t18 ->tableau3'
+    # (Pdb) state.current_state.open_talon[18]
+    # ['H', 'R', 5, 0, 0, 0]
+    # (Pdb) state.current_state.tableau[3]
+    # [['D', 'R', 1, 0, 0, 0], ['C', 'B', 9, 0, 0, 0], ['C', 'B', 3, 0, 0, 0], ['D', 'R', 7, 0, 1, 0], ['S', 'B', 6, 0, 1, 0]]
+    # (Pdb) open_talon_card
+    # 1
+    # (Pdb) action
+    # 'op_t18 ->tableau3'
+
+  # Fix the open talon to foundation: Make the 4th argument of the array 1 that is the card has been discovered by the simulator
+
+
+# Traceback (most recent call last):
+#   File "runner.py", line 9, in <module>
+#     from dealers import *
+#   File "../dealers/native_dealer.py", line 73, in run
+#     self.run_trials(multiprocess_mode=multiprocess_mode)
+#   File "../dealers/native_dealer.py", line 154, in run_trials
+#     game_outputs.append(self.run_trial())
+#   File "../dealers/native_dealer.py", line 193, in run_trial
+#     action_to_take = self.agents[current_state.current_player].select_action(current_state)
+#   File "../agents/frameworks/recursive_bandit_framework.py", line 26, in select_action
+#     return self.estimateV(state, self.depth)[1]  # return the best action
 #   File "../agents/frameworks/recursive_bandit_framework.py", line 55, in estimateV
 #     arm_data = self.run_pull(state, bandit, depth)
 #   File "../agents/frameworks/recursive_bandit_framework.py", line 75, in run_pull
@@ -23,10 +44,19 @@ global str
 #     return self.evaluation.evaluate(state), None  # no more depth, so default to the evaluation fn
 #   File "../agents/evaluations/rollout_evaluation.py", line 19, in evaluate
 #     total_rewards += self.run_rollout(state)
-#   File "../agents/evaluations/rollout_evaluation.py", line 32, in run_rollout
-#     rewards += sim_state.take_action(action)
-# TypeError: ufunc 'add' output (typecode 'O') could not be coerced to provided output parameter (typecode 'd') according to the casting rule ''same_kind''
-# 100% (1 of 1) |##########################| Elapsed Time: 0:00:00 Time:  0:00:00
+#   File "../agents/evaluations/rollout_evaluation.py", line 31, in run_rollout
+#     action = self.rollout_policy.select_action(sim_state)
+#   File "../agents/random_agent.py", line 19, in select_action
+#     raise ValueError("Action count cannot be zero.")
+# ValueError: Action count cannot be zero.
+# Run with  runner.py from chess.py and check when cached actions is 0
+# Error: self.open_talon went to length 0 suddenly on executing action opt_t to f
+# Error in is_legal pattern matching or some shit in open_talon related stuff, Fix
+# Work on is open function -- Function for moving multiple face up cards
+# Add a function for moving multiple cards -- Multiple faceup cards at the same time (specifying the action)
+# Reducing complexity by removing memoize and adding an extra dimension for storage in the array
+# self.talon has a card that self.foundation does, check distribution of cards -- Done - Resolved
+# Errors below have all been fixed
 
 # Error 2: Work on it later
 # pygame 1.9.4
@@ -374,49 +404,65 @@ class game:
 
 
   def open_talon_to_foundation(self,foundation_num,talon_card_num):
-    printf("INSIDE@")
-    if (len(self.foundation[foundation_num]) == 0):
-      if (self.open_talon[talon_card_num] == 1):
+    # print("INSIDE@")
+    try:
+      if (len(self.foundation[foundation_num]) == 0):
+        if (self.open_talon[talon_card_num] == 1):
+          self.foundation[foundation_num].append(self.open_talon[talon_card_num])
+          self.open_talon.pop(talon_card_num)
+          return (self.return_scoring(2))
+        else:
+          print("ERROR OPERATION FAILED, CHECK open_talon_to_foundation POLICIES")
+          pdb.set_trace()
+      elif((self.foundation[foundation_num][-1][2] == self.open_talon[talon_card_num][2]-1) and (self.foundation[foundation_num][-1][0] == self.open_talon[talon_card_num][0])):           #CHANGED, MAYBE
         self.foundation[foundation_num].append(self.open_talon[talon_card_num])
         self.open_talon.pop(talon_card_num)
-        return (self.return_scoring(2))
+        return self.scoring(2)
       else:
-        print("ERROR OPERATION FAILED, CHECK open_talon_to_foundation POLICIES")
+        print("INSIDEINSIDEINSIDEINSIDE")
         pdb.set_trace()
-    elif((self.foundation[foundation_num][-1][2] == self.open_talon[talon_card_num][2]-1) and (self.foundation[foundation_num][-1][0] == self.open_talon[talon_card_num][0])):           #CHANGED, MAYBE
-      self.foundation[foundation_num].append(self.open_talon[talon_card_num])
-      self.open_talon.pop(talon_card_num)
-      return self.scoring(2)
+    except Exception as e:
+      exc_type, exc_obj, exc_tb = sys.exc_info()
+      fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+      print(exc_type, fname, exc_tb.tb_lineno)
+      print("INSIDEINSIDEINSIDEINSIDE")
+      pdb.set_trace()
 
   def open_talon_to_tableau(self,talon_card,tableau_num):
-    printf("INSIDE!")
-    card = self.open_talon[talon_card]
-    # tableau_num -= 1    # architecture change (0-6)
-    if (len(self.tableau[tableau_num]) == 0):
-      if(card[2] == 13):
+    try:
+      # print("INSIDE!")
+      card = self.open_talon[talon_card]
+      # tableau_num -= 1    # architecture change (0-6)
+      if (len(self.tableau[tableau_num]) == 0):
+        if(card[2] == 13):
+          self.tableau[tableau_num].append(card)              #Adds the card to the tableau
+          self.open_talon.pop(talon_card)
+          return (self.return_scoring(1))
+
+      top_tableau_card = self.tableau[tableau_num][-1]
+
+      if(top_tableau_card[1] == card[1]):
+        print("Operation not valid, Try Again")
+        pdb.set_trace()
+      elif(top_tableau_card[2] <= card[2]):
+        print("Operation not valid. Try Again")
+        pdb.set_trace()
+      elif((top_tableau_card[1] != card[1]) and (top_tableau_card[2]-1 == card[2])):
         self.tableau[tableau_num].append(card)              #Adds the card to the tableau
         self.open_talon.pop(talon_card)
+        # self.scoring(1)
         return (self.return_scoring(1))
+      else:
+        print("Operation not possible")             #Removes the card
+        pdb.set_trace()
 
-    top_tableau_card = self.tableau[tableau_num][-1]
-
-    if(top_tableau_card[1] == card[1]):
-      print("Operation not valid, Try Again")
+        self.print_talon()
+        self.print_tableua()
+    except Exception as e:
+      exc_type, exc_obj, exc_tb = sys.exc_info()
+      fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+      print(exc_type, fname, exc_tb.tb_lineno)
       pdb.set_trace()
-    elif(top_tableau_card[2] <= card[2]):
-      print("Operation not valid. Try Again")
-      pdb.set_trace()
-    elif((top_tableau_card[1] != card[1]) and (top_tableau_card[2]-1 == card[2])):
-      self.tableau[tableau_num].append(card)              #Adds the card to the tableau
-      self.open_talon.pop(talon_card)
-      # self.scoring(1)
-      return (self.return_scoring(1))
-    else:
-      print("Operation not possible")             #Removes the card
-      pdb.set_trace()
-
-      self.print_talon()
-      self.print_tableua()
 
   #########################################################################################################
   #Parameters:-
@@ -670,25 +716,25 @@ class game:
           return False
 
       # talon to tableau ex: t to ta1
-      elif((action.find("t to") != -1) and (action.find("ta") != -1)):  #talon to tableau
-        if(len(self.open_talon) == 0):
-          return False
-        card = self.talon[-1]
-        tableau_num = int(action[7])   # ex: t to ta6
-        if (len(self.tableau[tableau_num]) == 0):
-          if(self.talon[-1][2] == 13):
-            return True
-          else: return False
-        length = self.tableau[tableau_num]                          #tableau_num denotes the tableau to insert cards in
-        top_tableau_card = self.tableau[tableau_num][-1]
-        if(top_tableau_card[1] == card[1]):
-          return False
-        elif(top_tableau_card[2] <= card[2]):
-          return False
-        elif((top_tableau_card[1] != card[1]) and (top_tableau_card[2]-1 == card[2])):
-          return True
-        else:
-          return False
+      # elif((action.find("t to") != -1) and (action.find("ta") != -1)):  #talon to tableau
+      #   if(len(self.open_talon) == 0):
+      #     return False
+      #   card = self.talon[-1]
+      #   tableau_num = int(action[7])   # ex: t to ta6
+      #   if (len(self.tableau[tableau_num]) == 0):
+      #     if(self.talon[-1][2] == 13):
+      #       return True
+      #     else: return False
+      #   length = self.tableau[tableau_num]                          #tableau_num denotes the tableau to insert cards in
+      #   top_tableau_card = self.tableau[tableau_num][-1]
+      #   if(top_tableau_card[1] == card[1]):
+      #     return False
+      #   elif(top_tableau_card[2] <= card[2]):
+      #     return False
+      #   elif((top_tableau_card[1] != card[1]) and (top_tableau_card[2]-1 == card[2])):
+      #     return True
+      #   else:
+      #     return False
 
       # Flip stock or talon: fl
       elif (action.find("fl") != -1):
@@ -759,6 +805,7 @@ class game:
         else:
           # print("Operation not possible")             #Removes the card
           return False
+
       elif (action.find("op_t") != -1 and action.find("->tableau") != -1): #op_t6 ->tableau5
         if(len(self.open_talon) == 0):
           return False
@@ -811,6 +858,7 @@ class game:
 
   def get_actions(self):
     possible_actions = []
+    string_builder  = ""  # for debugging purposes
     try:
       possible_actions = []
       # pdb.set_trace()
@@ -859,7 +907,10 @@ class game:
       return possible_actions
       # return list(chain.from_iterable([func(self) for func in possible_actions]))  #generate actions and flatten lists   # known as single line functions for lists REFERENCE
       # pdb.set_trace()
-    except:
+    except Exception as e:
+      exc_type, exc_obj, exc_tb = sys.exc_info()
+      fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+      print(exc_type, fname, exc_tb.tb_lineno)
       print("Error in get_actions")
       pdb.set_trace()
 
@@ -940,7 +991,10 @@ class game:
         tableau_num = int(action[-1])
         reward = self.open_talon_to_tableau(open_talon_card,tableau_num)
         return (reward)
-    except:
+    except Exception as e:
+      exc_type, exc_obj, exc_tb = sys.exc_info()
+      fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+      print(exc_type, fname, exc_tb.tb_lineno)
       print("error in take_action")
       print(action)
       pdb.set_trace()
