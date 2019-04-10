@@ -81,6 +81,7 @@ class SolitaireState(abstract_state.AbstractState):
         self.helperr.append(self.current_state.foundation)
         if(str(type(reward)) != "<class 'int'>"):
             print (str(type(reward)))
+            pdb.set_trace()
         return np.array([reward])
         # if self.current_state.return_game_state == 1:
             # self.game_outcome = previous_player if self.current_state.is_checked(self.get_current_color()) else 'draw'
