@@ -23,6 +23,7 @@ class SolitaireState(abstract_state.AbstractState):
         self.f = open("../../../actions.txt", "a")
         self.tableau = open("../../../tableau.txt", "a")
         self.past_state = []  # will only store the tableau and foundation and will be checked to prevent redundant actions from taking place
+        self.actions_taken = []
 
 
     def reinitialize(self):  # called after one entire game has been played
@@ -46,6 +47,7 @@ class SolitaireState(abstract_state.AbstractState):
         # reward = self.current_state.move_piece(action)
 
         reward = self.current_state.take_action(action)
+        self.actions_taken.append(action)
         # for i in range (len(self.past_state)):
             # if (self.past_state[i][0] == self.current_state.talon and self.past_state[i][1] == self.current_state.tableau and self.past_state[i][2] == self.current_state.foundation):
                 # reward = -10
