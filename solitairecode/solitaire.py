@@ -320,7 +320,7 @@ class game:
             # if len(self.tableau[initial_tableau]) == 0:
             #   self.tableau[final_tableau][-1][3] = 1                # Marks the card as discovered              
             #   return (self.return_scoring(1))  # Bane of my existence - forgetting this line took me around 6 hours to debug
-            # else:
+            # else: 
             #   self.tableau[initial_tableau][-1][3] = 1                # Marks the card as discovered
             #   self.tableau[final_tableau][-1][3] = 1                # Marks the card as discovered
             #   return (self.return_scoring(1))  # Bane of my existence - forgetting this line took me around 6 hours to debug
