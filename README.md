@@ -1,5 +1,4 @@
 # Research-klondaike-solitaire
-Repository for Dr. Prasad's Klondaike Solitaire Research
 
 • Working with Dr. Prasad Tadepalli on developing a Reinforcement learning model for Monte-Carlo planning techniques for Klondike Solitaire <br>
 • Creating a Monte-Carlo tree for compressing possible actions to increase efficiency for computing possible actions <br>
